@@ -23,11 +23,13 @@ import rx.subscriptions.CompositeSubscription
 class MainActivity : AppCompatActivity() {
 
     var recyclerView: RecyclerView? = null;
+    var loadingView: View? = null;
     var subscriptions = CompositeSubscription()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        loadingView = findViewById(R.id.loadingView)
         recyclerView = findViewById(R.id.list) as RecyclerView?
         recyclerView!!.layoutManager = LinearLayoutManager(this)
         recyclerView!!.adapter = CatsAdapter(layoutInflater, listener, Cats(emptyList()), FavouriteCats(mapOf()))
@@ -48,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         subscriptions.add(
                 getCatApplication().catUseCase.getCats()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(CatsObserver(layoutInflater, recyclerView!!, listener))
+                        .subscribe(CatsObserver(layoutInflater, recyclerView!!, loadingView!!, listener))
         )
         subscriptions.add(
                 getCatApplication().catUseCase.getFavouriteCats()
@@ -82,6 +84,7 @@ class MainActivity : AppCompatActivity() {
     class CatsObserver(
             val layoutInflater: LayoutInflater,
             val recyclerView: RecyclerView,
+            val loadingView: View,
             val listener: CatClickedListener
     ) : Observer<Cats> {
 
@@ -90,6 +93,7 @@ class MainActivity : AppCompatActivity() {
             var catAdapter = recyclerView.adapter as CatsAdapter
             catAdapter.cats = p0
             catAdapter.notifyDataSetChanged()
+            loadingView.visibility = View.GONE
         }
 
         override fun onError(p0: Throwable?) {
