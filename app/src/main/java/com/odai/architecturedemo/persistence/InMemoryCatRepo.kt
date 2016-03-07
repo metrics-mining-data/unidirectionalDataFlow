@@ -2,13 +2,15 @@ package com.odai.architecturedemo.persistence
 
 import com.odai.architecturedemo.model.Cat
 import com.odai.architecturedemo.model.Cats
+import com.odai.architecturedemo.model.FavouriteCats
+import com.odai.architecturedemo.model.FavouriteState
 import rx.Observable
 import java.util.concurrent.TimeUnit
 
 class InMemoryCatRepo : CatRepository {
 
     var cats: Cats = Cats(emptyList())
-    var favouriteCats: Cats = Cats(emptyList())
+    var favouriteCats: FavouriteCats = FavouriteCats(mapOf())
 
     override fun saveCats(cats: Cats) {
         this.cats = cats
@@ -22,7 +24,7 @@ class InMemoryCatRepo : CatRepository {
         }
     }
 
-    override fun readFavouriteCats(): Observable<Cats> {
+    override fun readFavouriteCats(): Observable<FavouriteCats> {
         if (favouriteCats.isEmpty()) {
             return Observable.empty()
         } else {
@@ -30,16 +32,12 @@ class InMemoryCatRepo : CatRepository {
         }
     }
 
-    override fun addToFavourite(cat: Cat) {
-        favouriteCats = favouriteCats.add(cat)
-    }
-
-    override fun removeFromFavourite(cat: Cat) {
-        favouriteCats = favouriteCats.remove(cat)
-    }
-
-    override fun saveFavouriteCats(cats: Cats) {
+    override fun saveFavouriteCats(cats: FavouriteCats) {
         favouriteCats = cats
+    }
+
+    override fun saveCatFavoriteStatus(it: Pair<Cat, FavouriteState>) {
+        favouriteCats = favouriteCats.put(it)
     }
 
 }

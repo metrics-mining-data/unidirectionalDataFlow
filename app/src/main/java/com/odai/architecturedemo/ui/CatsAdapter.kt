@@ -6,12 +6,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.odai.architecturedemo.model.Cats
 import com.odai.architecturedemo.R
+import com.odai.architecturedemo.model.FavouriteCats
 
-class CatsAdapter(val layoutInflater: LayoutInflater, val listener: MainActivity.CatClickedListener, var cats: Cats, var favouriteCats: Cats) : RecyclerView.Adapter<CatsViewHolder>() {
+class CatsAdapter(val layoutInflater: LayoutInflater, val listener: MainActivity.CatClickedListener, var cats: Cats, var favouriteCats: FavouriteCats) : RecyclerView.Adapter<CatsViewHolder>() {
 
     override fun onBindViewHolder(p0: CatsViewHolder, p1: Int) {
         val cat = cats.get(p1)
-        p0.bind(cat, favouriteCats.contains(cat), listener)
+        p0.bind(cat, favouriteCats.getStatusFor(cat), listener)
     }
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): CatsViewHolder? {

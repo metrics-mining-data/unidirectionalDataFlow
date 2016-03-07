@@ -3,6 +3,8 @@ package com.odai.architecturedemo.UseCase
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.model.Cat
 import com.odai.architecturedemo.model.Cats
+import com.odai.architecturedemo.model.FavouriteCats
+import com.odai.architecturedemo.model.FavouriteState
 import com.odai.architecturedemo.persistence.CatRepository
 import rx.Observable
 import rx.Observer
@@ -12,7 +14,7 @@ import rx.subjects.BehaviorSubject
 class CatUseCase(val api: CatApi, val repository: CatRepository) {
 
     val catsSubject :BehaviorSubject<Cats> = BehaviorSubject.create()
-    val favouriteCatsSubject :BehaviorSubject<Cats> = BehaviorSubject.create()
+    val favouriteCatsSubject :BehaviorSubject<FavouriteCats> = BehaviorSubject.create()
 
     fun getCats(): Observable<Cats> {
         if (!catsSubject.hasValue()) {
@@ -27,11 +29,15 @@ class CatUseCase(val api: CatApi, val repository: CatRepository) {
         return catsSubject.asObservable()
     }
 
-    fun getFavouriteCats(): Observable<Cats> {
+    fun getFavouriteCats(): Observable<FavouriteCats> {
         if (!favouriteCatsSubject.hasValue()) {
             repository.readFavouriteCats()
                     .switchIfEmpty(
                             api.getFavouriteCats()
+                                    .map {
+                                        val map = it.list.fold(mapOf<Cat, FavouriteState>()) { map, cat -> map.plus(Pair(cat, FavouriteState.FAVOURITE)) }
+                                        FavouriteCats(map)
+                                    }
                                     .doOnNext { repository.saveFavouriteCats(it) }
                     )
                     .subscribeOn(Schedulers.io())
@@ -41,17 +47,20 @@ class CatUseCase(val api: CatApi, val repository: CatRepository) {
     }
 
     fun addToFavourite(cat: Cat) {
-        favouriteCatsSubject.onNext(favouriteCatsSubject.value.add(cat))
-
         api.addToFavourite(cat)
+            .map { Pair(cat, FavouriteState.FAVOURITE) }
+            .onErrorReturn { Pair(cat, FavouriteState.UN_FAVOURITE) }
+            .startWith(Pair(cat, FavouriteState.PENDING_FAVOURITE))
+            .doOnNext { repository.saveCatFavoriteStatus(it) }
             .subscribeOn(Schedulers.io())
-            .subscribe(object : Observer<Cat> {
-                override fun onNext(p0: Cat?) {
-                    repository.addToFavourite(cat)
+            .subscribe(object : Observer<Pair<Cat, FavouriteState>> {
+
+                override fun onNext(p0: Pair<Cat, FavouriteState>) {
+                    favouriteCatsSubject.onNext(favouriteCatsSubject.value.put(p0))
                 }
 
                 override fun onError(p0: Throwable?) {
-                    favouriteCatsSubject.onNext(favouriteCatsSubject.value.remove(cat))
+                    throw UnsupportedOperationException()
                 }
 
                 override fun onCompleted() {
@@ -61,17 +70,20 @@ class CatUseCase(val api: CatApi, val repository: CatRepository) {
     }
 
     fun removeFromFavourite(cat: Cat) {
-        favouriteCatsSubject.onNext(favouriteCatsSubject.value.remove(cat))
-
-        api.removeFromFavourite(cat)
+        api.addToFavourite(cat)
+                .map { Pair(cat, FavouriteState.UN_FAVOURITE) }
+                .onErrorReturn { Pair(cat, FavouriteState.FAVOURITE) }
+                .startWith(Pair(cat, FavouriteState.PENDING_UN_FAVOURITE))
+                .doOnNext { repository.saveCatFavoriteStatus(it) }
                 .subscribeOn(Schedulers.io())
-                .subscribe(object : Observer<Cat> {
-                    override fun onNext(p0: Cat?) {
-                        repository.removeFromFavourite(cat)
+                .subscribe(object : Observer<Pair<Cat, FavouriteState>> {
+
+                    override fun onNext(p0: Pair<Cat, FavouriteState>) {
+                        favouriteCatsSubject.onNext(favouriteCatsSubject.value.put(p0))
                     }
 
                     override fun onError(p0: Throwable?) {
-                        favouriteCatsSubject.onNext(favouriteCatsSubject.value.add(cat))
+                        throw UnsupportedOperationException()
                     }
 
                     override fun onCompleted() {

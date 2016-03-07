@@ -14,6 +14,8 @@ import com.odai.architecturedemo.R
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.api.FakeCatsApi
 import com.odai.architecturedemo.model.Cat
+import com.odai.architecturedemo.model.FavouriteCats
+import com.odai.architecturedemo.model.FavouriteState
 import rx.Observer
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
@@ -28,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         recyclerView = findViewById(R.id.list) as RecyclerView?
         recyclerView!!.layoutManager = LinearLayoutManager(this)
-        recyclerView!!.adapter = CatsAdapter(layoutInflater, listener, Cats(emptyList()), Cats(emptyList()))
+        recyclerView!!.adapter = CatsAdapter(layoutInflater, listener, Cats(emptyList()), FavouriteCats(mapOf()))
         recyclerView!!.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 outRect.top = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin)
@@ -64,9 +66,10 @@ class MainActivity : AppCompatActivity() {
     val listener: CatClickedListener = object : CatClickedListener {
         override fun onCatClicked(cat: Cat) {
             val catAdapter = recyclerView!!.adapter as CatsAdapter
-            if (catAdapter.favouriteCats.contains(cat)) {
+            val favouriteState = catAdapter.favouriteCats.getStatusFor(cat)
+            if (favouriteState == FavouriteState.FAVOURITE) {
                 getCatApplication().catUseCase.removeFromFavourite(cat)
-            } else {
+            } else if (favouriteState == FavouriteState.UN_FAVOURITE) {
                 getCatApplication().catUseCase.addToFavourite(cat)
             }
         }
@@ -99,9 +102,10 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    class FavouriteCatsObserver(val recyclerView: RecyclerView) : Observer<Cats> {
+    class FavouriteCatsObserver(val recyclerView: RecyclerView) : Observer<FavouriteCats> {
 
-        override fun onNext(p0: Cats) {
+        override fun onNext(p0: FavouriteCats) {
+            Log.d("Cats", "Got new favourite cats")
             var catAdapter = recyclerView.adapter as CatsAdapter
             catAdapter.favouriteCats = p0
             catAdapter.notifyDataSetChanged()
