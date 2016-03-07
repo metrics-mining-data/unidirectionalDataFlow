@@ -8,14 +8,20 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.TextView
+import android.widget.Toast
 import com.odai.architecturedemo.CatApplication
 import com.odai.architecturedemo.model.Cats
 import com.odai.architecturedemo.R
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.api.FakeCatsApi
+import com.odai.architecturedemo.event.Event
+import com.odai.architecturedemo.event.Status
 import com.odai.architecturedemo.model.Cat
 import com.odai.architecturedemo.model.FavouriteCats
 import com.odai.architecturedemo.model.FavouriteState
+import rx.Notification
+import rx.Observable
 import rx.Observer
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
@@ -23,14 +29,14 @@ import rx.subscriptions.CompositeSubscription
 class MainActivity : AppCompatActivity() {
 
     var recyclerView: RecyclerView? = null;
-    var loadingView: View? = null;
+    var loadingView: TextView? = null;
     var subscriptions = CompositeSubscription()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        loadingView = findViewById(R.id.loadingView)
-        recyclerView = findViewById(R.id.list) as RecyclerView?
+        loadingView = findViewById(R.id.loadingView) as TextView
+        recyclerView = findViewById(R.id.list) as RecyclerView
         recyclerView!!.layoutManager = LinearLayoutManager(this)
         recyclerView!!.adapter = CatsAdapter(layoutInflater, listener, Cats(emptyList()), FavouriteCats(mapOf()))
         recyclerView!!.addItemDecoration(object : RecyclerView.ItemDecoration() {
@@ -48,9 +54,14 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         subscriptions.add(
+                getCatApplication().catUseCase.getCatsEvents()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(CatsEventsObserver(loadingView!!, recyclerView!!))
+        )
+        subscriptions.add(
                 getCatApplication().catUseCase.getCats()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(CatsObserver(layoutInflater, recyclerView!!, loadingView!!, listener))
+                        .subscribe(CatsObserver(layoutInflater, recyclerView!!, listener))
         )
         subscriptions.add(
                 getCatApplication().catUseCase.getFavouriteCats()
@@ -81,10 +92,47 @@ class MainActivity : AppCompatActivity() {
         fun onCatClicked(cat: Cat): Unit
     }
 
+    class CatsEventsObserver(val loadingView: TextView, val recyclerView: RecyclerView) : Observer<Event<Cats>> {
+
+        override fun onNext(p0: Event<Cats>) {
+            when(p0.status) {
+                Status.LOADING -> {
+                    if(p0.data != null) {
+                        loadingView.visibility = View.GONE
+                        recyclerView.setBackgroundColor(recyclerView.resources.getColor(R.color.colorAccent, null))
+                    } else {
+                        loadingView.visibility = View.VISIBLE
+                        loadingView.text = "LOADING"
+                        recyclerView.setBackgroundColor(recyclerView.resources.getColor(android.R.color.transparent, null))
+                    }
+                }
+                Status.IDLE -> {
+                    if (p0.data != null) {
+                        loadingView.visibility = View.GONE
+                        recyclerView.setBackgroundColor(recyclerView.resources.getColor(android.R.color.transparent, null))
+                    } else {
+                        loadingView.visibility = View.VISIBLE
+                        loadingView.text = "EMPTY"
+                        recyclerView.setBackgroundColor(recyclerView.resources.getColor(android.R.color.transparent, null))
+                    }
+                }
+                Status.ERROR -> Toast.makeText(loadingView.context, "An error has occured: " + p0.error?.message ?: "Something went wrong", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        override fun onCompleted() {
+            throw UnsupportedOperationException()
+        }
+
+        override fun onError(p0: Throwable?) {
+            throw UnsupportedOperationException()
+        }
+
+    }
+
     class CatsObserver(
             val layoutInflater: LayoutInflater,
             val recyclerView: RecyclerView,
-            val loadingView: View,
             val listener: CatClickedListener
     ) : Observer<Cats> {
 
@@ -93,7 +141,6 @@ class MainActivity : AppCompatActivity() {
             var catAdapter = recyclerView.adapter as CatsAdapter
             catAdapter.cats = p0
             catAdapter.notifyDataSetChanged()
-            loadingView.visibility = View.GONE
         }
 
         override fun onError(p0: Throwable?) {
