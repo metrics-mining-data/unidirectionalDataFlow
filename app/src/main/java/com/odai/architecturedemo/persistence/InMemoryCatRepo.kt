@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 class InMemoryCatRepo : CatRepository {
 
-    var cats: Cats = Cats(emptyList())
+    var cats: Cats = Cats(listOf(Cat("Foo")))
     var favouriteCats: FavouriteCats = FavouriteCats(mapOf())
 
     override fun saveCats(cats: Cats) {
