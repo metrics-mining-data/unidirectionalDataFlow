@@ -10,7 +10,7 @@ import com.odai.architecturedemo.favourite.model.FavouriteCats
 
 class CatsAdapter(
         val layoutInflater: LayoutInflater,
-        val listener: CatsActivity.CatClickedListener,
+        val listener: CatsPresenter.CatClickedListener,
         var cats: Cats,
         var favouriteCats: FavouriteCats
 ) : RecyclerView.Adapter<CatsViewHolder>() {

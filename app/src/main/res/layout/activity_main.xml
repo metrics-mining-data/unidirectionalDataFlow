@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.odai.architecturedemo.cats.ui.AndroidCatsView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/catsView"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:paddingBottom="@dimen/activity_vertical_margin"
@@ -21,4 +22,4 @@
     android:gravity="center"
     android:text="LOADING" />
 
-</FrameLayout>
+</com.odai.architecturedemo.cats.ui.AndroidCatsView>

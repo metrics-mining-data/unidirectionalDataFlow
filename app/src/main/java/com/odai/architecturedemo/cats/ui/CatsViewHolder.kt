@@ -8,13 +8,13 @@ import com.odai.architecturedemo.cats.model.Cat
 import com.odai.architecturedemo.favourite.model.FavouriteState
 
 class CatsViewHolder(itemView: TextView?) : RecyclerView.ViewHolder(itemView) {
-    fun bind(cat: Cat, favouriteState: FavouriteState, listener: CatsActivity.CatClickedListener) {
+    fun bind(cat: Cat, favouriteState: FavouriteState, listener: CatsPresenter.CatClickedListener) {
         val textView = itemView as TextView
         textView.text = cat.name
         val color = getColor(favouriteState)
         textView.setBackgroundColor(itemView.resources.getColor(getColor(favouriteState), null));
         textView.setOnClickListener {
-            listener.onCatClicked(cat)
+            listener.onCatClicked(cat, favouriteState)
         }
     }
 
