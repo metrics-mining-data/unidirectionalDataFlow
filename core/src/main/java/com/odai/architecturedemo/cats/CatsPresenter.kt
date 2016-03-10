@@ -2,15 +2,14 @@ package com.odai.architecturedemo.cats
 
 import com.odai.architecturedemo.cats.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
-import com.odai.architecturedemo.cats.view.CatsView
 import com.odai.architecturedemo.cats.usecase.CatsUseCase
+import com.odai.architecturedemo.cats.view.CatsView
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.EventObserver
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
 import com.odai.architecturedemo.favourite.usecase.FavouriteCatsUseCase
 import rx.Observer
-import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
 
 class CatsPresenter(
@@ -25,17 +24,14 @@ class CatsPresenter(
         catsView.attach(listener)
         subscriptions.add(
                 catsUseCase.getCatsEvents()
-                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(catsEventsObserver)
         )
         subscriptions.add(
                 catsUseCase.getCats()
-                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(catsObserver)
         )
         subscriptions.add(
                 favouriteCatsUseCase.getFavouriteCats()
-                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(favouriteCatsObserver)
         )
     }

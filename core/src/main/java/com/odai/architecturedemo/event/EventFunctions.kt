@@ -22,4 +22,4 @@ fun <T> asData() = Observable.Transformer<Event<T>, T> { p0 ->
             .distinctUntilChanged()
 }
 
-fun <T> isNotInitialised(subject: BehaviorSubject<Event<T>>) = subject.value.status != Status.LOADING && subject.value.data == null
+fun <T> isInitialised(subject: BehaviorSubject<Event<T>>) = subject.value.data != null || subject.value.status == Status.LOADING
