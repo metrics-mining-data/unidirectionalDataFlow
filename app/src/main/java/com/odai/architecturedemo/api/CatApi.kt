@@ -1,7 +1,7 @@
 package com.odai.architecturedemo.api
 
-import com.odai.architecturedemo.model.Cat
-import com.odai.architecturedemo.model.Cats
+import com.odai.architecturedemo.cats.model.Cat
+import com.odai.architecturedemo.cats.model.Cats
 import rx.Observable
 
 interface CatApi {

@@ -1,4 +1,4 @@
-package com.odai.architecturedemo.model
+package com.odai.architecturedemo.favourite.model
 
 enum class FavouriteState {
     FAVOURITE,

@@ -1,7 +1,5 @@
 package com.odai.architecturedemo.event
 
-import com.odai.architecturedemo.model.Cat
-import com.odai.architecturedemo.model.Cats
 import rx.Notification
 import rx.Observable
 import rx.subjects.BehaviorSubject

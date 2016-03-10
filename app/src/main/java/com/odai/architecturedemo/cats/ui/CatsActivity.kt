@@ -1,4 +1,4 @@
-package com.odai.architecturedemo.ui
+package com.odai.architecturedemo.cats.ui
 
 import android.graphics.Rect
 import android.support.v7.app.AppCompatActivity
@@ -11,22 +11,22 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import com.odai.architecturedemo.CatApplication
-import com.odai.architecturedemo.model.Cats
 import com.odai.architecturedemo.R
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.api.FakeCatsApi
+import com.odai.architecturedemo.cats.model.Cat
+import com.odai.architecturedemo.cats.model.Cats
+import com.odai.architecturedemo.favourite.model.FavouriteCats
+import com.odai.architecturedemo.favourite.model.FavouriteState
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.Status
-import com.odai.architecturedemo.model.Cat
-import com.odai.architecturedemo.model.FavouriteCats
-import com.odai.architecturedemo.model.FavouriteState
 import rx.Notification
 import rx.Observable
 import rx.Observer
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
 
-class MainActivity : AppCompatActivity() {
+class CatsActivity : AppCompatActivity() {
 
     var recyclerView: RecyclerView? = null;
     var loadingView: TextView? = null;
@@ -41,8 +41,8 @@ class MainActivity : AppCompatActivity() {
         recyclerView!!.adapter = CatsAdapter(layoutInflater, listener, Cats(emptyList()), FavouriteCats(mapOf()))
         recyclerView!!.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-                outRect.top = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin)
-                outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin)
+                outRect.top = resources.getDimensionPixelSize(R.dimen.activity_vertical_margin)
+                outRect.bottom = resources.getDimensionPixelSize(R.dimen.activity_vertical_margin)
             }
         })
     }
@@ -54,19 +54,19 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         subscriptions.add(
-                getCatApplication().catUseCase.getCatsEvents()
+                getCatApplication().catsUseCase.getCatsEvents()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(CatsEventsObserver(loadingView!!, recyclerView!!))
+                        .subscribe(catsEventsObserver(loadingView!!, recyclerView!!))
         )
         subscriptions.add(
-                getCatApplication().catUseCase.getCats()
+                getCatApplication().catsUseCase.getCats()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(CatsObserver(layoutInflater, recyclerView!!, listener))
+                        .subscribe(catsObserver(recyclerView!!))
         )
         subscriptions.add(
-                getCatApplication().catUseCase.getFavouriteCats()
+                getCatApplication().favouriteCatsUseCase.getFavouriteCats()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(FavouriteCatsObserver(recyclerView!!))
+                        .subscribe(favouriteCatsObserver(recyclerView!!))
         )
     }
 
@@ -76,14 +76,15 @@ class MainActivity : AppCompatActivity() {
         subscriptions = CompositeSubscription()
     }
 
-    val listener: CatClickedListener = object : CatClickedListener {
+    val listener: CatsActivity.CatClickedListener = object : CatsActivity.CatClickedListener {
         override fun onCatClicked(cat: Cat) {
             val catAdapter = recyclerView!!.adapter as CatsAdapter
             val favouriteState = catAdapter.favouriteCats.getStatusFor(cat)
+
             if (favouriteState == FavouriteState.FAVOURITE) {
-                getCatApplication().catUseCase.removeFromFavourite(cat)
+                getCatApplication().favouriteCatsUseCase.removeFromFavourite(cat)
             } else if (favouriteState == FavouriteState.UN_FAVOURITE) {
-                getCatApplication().catUseCase.addToFavourite(cat)
+                getCatApplication().favouriteCatsUseCase.addToFavourite(cat)
             }
         }
     }
@@ -92,12 +93,11 @@ class MainActivity : AppCompatActivity() {
         fun onCatClicked(cat: Cat): Unit
     }
 
-    class CatsEventsObserver(val loadingView: TextView, val recyclerView: RecyclerView) : Observer<Event<Cats>> {
-
+    private fun catsEventsObserver(loadingView: TextView, recyclerView: RecyclerView): Observer<Event<Cats>> = object : Observer<Event<Cats>> {
         override fun onNext(p0: Event<Cats>) {
-            when(p0.status) {
+            when (p0.status) {
                 Status.LOADING -> {
-                    if(p0.data != null) {
+                    if (p0.data != null) {
                         loadingView.visibility = View.GONE
                         recyclerView.setBackgroundColor(recyclerView.resources.getColor(R.color.colorAccent, null))
                     } else {
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                         recyclerView.setBackgroundColor(recyclerView.resources.getColor(android.R.color.transparent, null))
                     }
                 }
-                Status.ERROR -> Toast.makeText(loadingView.context, "An error has occured: " + p0.error?.message ?: "Something went wrong", Toast.LENGTH_LONG).show()
+                Status.ERROR -> Toast.makeText(loadingView.context, "An error has occurred: " + p0.error?.message , Toast.LENGTH_LONG).show()
             }
         }
 
@@ -130,44 +130,41 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    class CatsObserver(
-            val layoutInflater: LayoutInflater,
-            val recyclerView: RecyclerView,
-            val listener: CatClickedListener
-    ) : Observer<Cats> {
+    private fun catsObserver(recyclerView: RecyclerView): Observer<Cats> = object : Observer<Cats> {
+            override fun onNext(p0: Cats) {
+                Log.d("Cats", "Got cats")
+                var catAdapter = recyclerView.adapter as CatsAdapter
+                catAdapter.cats = p0
+                catAdapter.notifyDataSetChanged()
+            }
 
-        override fun onNext(p0: Cats) {
-            Log.d("Cats", "Got cats")
-            var catAdapter = recyclerView.adapter as CatsAdapter
-            catAdapter.cats = p0
-            catAdapter.notifyDataSetChanged()
+            override fun onError(p0: Throwable?) {
+                throw UnsupportedOperationException("Error on cats pipeline. This should never happen", p0)
+            }
+
+            override fun onCompleted() {
+                throw UnsupportedOperationException("Completion on cats pipeline. This should never happen")
+            }
+
         }
 
-        override fun onError(p0: Throwable?) {
-            Log.e("Cats", "Failed to load cats", p0)
+    private fun favouriteCatsObserver(recyclerView: RecyclerView): Observer<FavouriteCats> = object : Observer<FavouriteCats> {
+
+            override fun onNext(p0: FavouriteCats) {
+                Log.d("Cats", "Got new favourite cats")
+                var catAdapter = recyclerView.adapter as CatsAdapter
+                catAdapter.favouriteCats = p0
+                catAdapter.notifyDataSetChanged()
+            }
+
+            override fun onError(p0: Throwable?) {
+                throw UnsupportedOperationException("Error on favourite cats pipeline. This should never happen", p0)
+            }
+
+            override fun onCompleted() {
+                throw UnsupportedOperationException("Completion on favourite cats pipeline. This should never happen")
+            }
+
         }
 
-        override fun onCompleted() {
-            Log.d("Cats", "Cats Completed")
-        }
-
-    }
-
-    class FavouriteCatsObserver(val recyclerView: RecyclerView) : Observer<FavouriteCats> {
-
-        override fun onNext(p0: FavouriteCats) {
-            Log.d("Cats", "Got new favourite cats")
-            var catAdapter = recyclerView.adapter as CatsAdapter
-            catAdapter.favouriteCats = p0
-            catAdapter.notifyDataSetChanged()
-        }
-
-        override fun onError(p0: Throwable?) {
-            Log.e("Favourite Cats", "Failed to load Favourite Cats", p0)
-        }
-
-        override fun onCompleted() {
-            Log.d("Favourite Cats", "Favourite Cats Completed")
-        }
-    }
 }

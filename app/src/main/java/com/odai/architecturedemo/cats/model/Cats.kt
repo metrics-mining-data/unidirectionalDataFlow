@@ -1,4 +1,4 @@
-package com.odai.architecturedemo.model
+package com.odai.architecturedemo.cats.model
 
 data class Cats (val list: List<Cat>) {
 

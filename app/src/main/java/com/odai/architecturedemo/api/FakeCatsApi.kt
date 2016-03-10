@@ -1,8 +1,8 @@
 package com.odai.architecturedemo.api
 
 import android.util.Log
-import com.odai.architecturedemo.model.Cat
-import com.odai.architecturedemo.model.Cats
+import com.odai.architecturedemo.cats.model.Cat
+import com.odai.architecturedemo.cats.model.Cats
 import rx.Observable
 import java.util.*
 import java.util.concurrent.TimeUnit
