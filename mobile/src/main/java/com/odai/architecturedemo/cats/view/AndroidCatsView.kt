@@ -1,4 +1,4 @@
-package com.odai.architecturedemo.cats.ui
+package com.odai.architecturedemo.cats.view
 
 import android.content.Context
 import android.graphics.Rect
@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.odai.architecturedemo.R
 import com.odai.architecturedemo.cats.model.Cats
+import com.odai.architecturedemo.cats.CatsPresenter
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 
 class AndroidCatsView(context: Context, attrs: AttributeSet): CatsView, FrameLayout(context, attrs) {

@@ -1,10 +1,11 @@
-package com.odai.architecturedemo.cats.ui
+package com.odai.architecturedemo.cats.view
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import com.odai.architecturedemo.R
+import com.odai.architecturedemo.cats.CatsPresenter
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 

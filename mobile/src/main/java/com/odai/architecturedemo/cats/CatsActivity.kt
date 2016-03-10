@@ -1,9 +1,10 @@
-package com.odai.architecturedemo.cats.ui
+package com.odai.architecturedemo.cats
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.odai.architecturedemo.CatApplication
 import com.odai.architecturedemo.R
+import com.odai.architecturedemo.cats.view.CatsView
 
 class CatsActivity : AppCompatActivity() {
 

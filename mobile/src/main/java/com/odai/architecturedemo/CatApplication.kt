@@ -10,8 +10,9 @@ import com.odai.architecturedemo.persistence.InMemoryCatRepo
 
 class CatApplication : Application() {
 
-    val api : CatApi = FakeCatsApi()
-    val repository : CatRepository = InMemoryCatRepo()
+    private val api : CatApi = FakeCatsApi()
+    private val repository : CatRepository = InMemoryCatRepo()
+
     val catsUseCase: CatsUseCase = CatsUseCase(api, repository)
     val favouriteCatsUseCase: FavouriteCatsUseCase = FavouriteCatsUseCase(api, repository)
 

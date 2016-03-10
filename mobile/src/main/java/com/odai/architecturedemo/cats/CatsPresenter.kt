@@ -1,7 +1,8 @@
-package com.odai.architecturedemo.cats.ui
+package com.odai.architecturedemo.cats
 
 import com.odai.architecturedemo.cats.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
+import com.odai.architecturedemo.cats.view.CatsView
 import com.odai.architecturedemo.cats.usecase.CatsUseCase
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.EventObserver
