@@ -5,6 +5,7 @@ import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
 import rx.Observable
+import rx.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 class InMemoryCatRepo : CatRepository {
@@ -20,7 +21,7 @@ class InMemoryCatRepo : CatRepository {
         if (cats.isEmpty()) {
             return Observable.empty()
         } else {
-            return Observable.just(cats).delay(1, TimeUnit.SECONDS)
+            return Observable.just(cats).delay(1, TimeUnit.SECONDS, Schedulers.immediate())
         }
     }
 
@@ -28,7 +29,7 @@ class InMemoryCatRepo : CatRepository {
         if (favouriteCats.isEmpty()) {
             return Observable.empty()
         } else {
-            return Observable.just(favouriteCats).delay(1, TimeUnit.SECONDS)
+            return Observable.just(favouriteCats).delay(1, TimeUnit.SECONDS, Schedulers.immediate())
         }
     }
 
