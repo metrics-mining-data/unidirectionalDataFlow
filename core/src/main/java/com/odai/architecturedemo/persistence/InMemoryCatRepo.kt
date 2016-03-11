@@ -21,7 +21,7 @@ class InMemoryCatRepo : CatRepository {
         if (cats.isEmpty()) {
             return Observable.empty()
         } else {
-            return Observable.just(cats).delay(1, TimeUnit.SECONDS, Schedulers.immediate())
+            return Observable.just(cats).delay(500, TimeUnit.MILLISECONDS, Schedulers.immediate())
         }
     }
 
@@ -29,7 +29,7 @@ class InMemoryCatRepo : CatRepository {
         if (favouriteCats.isEmpty()) {
             return Observable.empty()
         } else {
-            return Observable.just(favouriteCats).delay(1, TimeUnit.SECONDS, Schedulers.immediate())
+            return Observable.just(favouriteCats).delay(500, TimeUnit.MILLISECONDS, Schedulers.immediate())
         }
     }
 

@@ -69,6 +69,7 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet): LoadingView, Fr
     }
 
     override fun showLoadingScreen() {
+        toast?.cancel()
         content.visibility = GONE
         loadingContainer.visibility = VISIBLE
         loadingLabel.text = "LOADING"
@@ -76,12 +77,14 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet): LoadingView, Fr
     }
 
     override fun showData() {
+        toast?.cancel()
         content.visibility = VISIBLE
         loadingContainer.visibility = GONE
         setBackgroundColor(resources.getColor(android.R.color.transparent, null))
     }
 
     override fun showEmptyScreen() {
+        toast?.cancel()
         content.visibility = GONE
         loadingContainer.visibility = VISIBLE
         loadingLabel.text = "EMPTY"
@@ -89,6 +92,7 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet): LoadingView, Fr
     }
 
     override fun showErrorScreen() {
+        toast?.cancel()
         content.visibility = GONE
         loadingContainer.visibility = VISIBLE
         loadingLabel.text = "ERROR"
@@ -97,7 +101,7 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet): LoadingView, Fr
 
     private fun displayToast(message: String) {
         toast?.cancel()
-        toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+        toast = Toast.makeText(context, message, Toast.LENGTH_LONG)
         toast!!.show()
     }
 
