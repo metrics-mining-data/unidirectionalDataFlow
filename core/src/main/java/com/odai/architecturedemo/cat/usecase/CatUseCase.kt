@@ -10,4 +10,6 @@ interface CatUseCase {
 
     fun getCat(id: Int): Observable<Cat>
 
+    fun refreshCat()
+
 }

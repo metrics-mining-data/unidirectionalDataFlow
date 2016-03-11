@@ -12,16 +12,4 @@ interface CatsView {
 
     fun display(favouriteCats: FavouriteCats)
 
-    fun showLoadingIndicator()
-
-    fun showLoadingScreen()
-
-    fun showData()
-
-    fun showEmptyScreen()
-
-    fun showErrorIndicator()
-
-    fun showErrorScreen()
-
 }

@@ -11,4 +11,6 @@ interface CatsUseCase {
 
     fun getCats(): Observable<Cats>
 
+    fun refreshCats()
+
 }

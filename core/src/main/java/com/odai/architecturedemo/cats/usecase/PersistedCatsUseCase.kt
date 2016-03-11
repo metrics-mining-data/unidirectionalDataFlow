@@ -5,7 +5,6 @@ import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.event.*
 import com.odai.architecturedemo.persistence.CatRepository
 import rx.Observable
-import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 
 class PersistedCatsUseCase(val api: CatApi, val repository: CatRepository) : CatsUseCase {
@@ -19,6 +18,12 @@ class PersistedCatsUseCase(val api: CatApi, val repository: CatRepository) : Cat
     }
 
     override fun getCats() = getCatsEvents().compose(asData())
+
+    override fun refreshCats() {
+        fetchRemoteCats()
+                .compose(asEvent<Cats>())
+                .subscribe { catsSubject.onNext(it) }
+    }
 
     private fun initialiseSubject(): Observable<Event<Cats>> {
         if (isInitialised(catsSubject)) {

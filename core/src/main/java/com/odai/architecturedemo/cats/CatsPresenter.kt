@@ -9,6 +9,8 @@ import com.odai.architecturedemo.event.EventObserver
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
 import com.odai.architecturedemo.favourite.usecase.FavouriteCatsUseCase
+import com.odai.architecturedemo.loading.LoadingView
+import com.odai.architecturedemo.loading.RetryClickedListener
 import com.odai.architecturedemo.navigation.Navigator
 import rx.Observer
 import rx.subscriptions.CompositeSubscription
@@ -17,13 +19,15 @@ class CatsPresenter(
         val catsUseCase: CatsUseCase,
         val favouriteCatsUseCase: FavouriteCatsUseCase,
         val navigate: Navigator,
-        val catsView: CatsView
+        val catsView: CatsView,
+        val loadingView: LoadingView
 ) {
 
     var subscriptions = CompositeSubscription()
 
     fun startPresenting() {
-        catsView.attach(listener)
+        catsView.attach(catClickedListener)
+        loadingView.attach(retryListener)
         subscriptions.add(
                 catsUseCase.getCatsEvents()
                         .subscribe(catsEventsObserver)
@@ -47,25 +51,25 @@ class CatsPresenter(
         get() = object : EventObserver<Cats>() {
             override fun onLoading(event: Event<Cats>) {
                 if (event.data != null) {
-                    catsView.showLoadingIndicator()
+                    loadingView.showLoadingIndicator()
                 } else {
-                    catsView.showLoadingScreen()
+                    loadingView.showLoadingScreen()
                 }
             }
 
             override fun onIdle(event: Event<Cats>) {
                 if (event.data != null) {
-                    catsView.showData()
+                    loadingView.showData()
                 } else {
-                    catsView.showEmptyScreen()
+                    loadingView.showEmptyScreen()
                 }
             }
 
             override fun onError(event: Event<Cats>) {
                 if (event.data != null) {
-                    catsView.showErrorScreen()
+                    loadingView.showErrorScreen()
                 } else {
-                    catsView.showErrorIndicator()
+                    loadingView.showErrorIndicator()
                 }
             }
 
@@ -106,7 +110,15 @@ class CatsPresenter(
         fun onCatClicked(cat: Cat)
     }
 
-    val listener: CatClickedListener = object : CatClickedListener {
+    val retryListener = object : RetryClickedListener {
+
+        override fun onRetry() {
+            catsUseCase.refreshCats()
+        }
+
+    }
+
+    val catClickedListener = object : CatClickedListener {
 
         override fun onCatClicked(cat: Cat) {
             navigate.toCat(cat)

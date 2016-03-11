@@ -3,20 +3,25 @@ package com.odai.architecturedemo.cat
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cat.usecase.CatUseCase
 import com.odai.architecturedemo.cat.view.CatView
+import com.odai.architecturedemo.cats.CatsPresenter
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.EventObserver
+import com.odai.architecturedemo.loading.LoadingView
+import com.odai.architecturedemo.loading.RetryClickedListener
 import rx.Observer
 import rx.subscriptions.CompositeSubscription
 
 class CatPresenter(
         val id: Int,
         val catUseCase: CatUseCase,
-        val catView: CatView
+        val catView: CatView,
+        val loadingView: LoadingView
 ) {
 
     var subscriptions = CompositeSubscription()
 
     fun startPresenting() {
+        loadingView.attach(retryListener)
         subscriptions.add(
                 catUseCase.getCatEvents(id)
                         .subscribe(catEventsObserver)
@@ -36,25 +41,25 @@ class CatPresenter(
         get() = object : EventObserver<Cat>() {
             override fun onLoading(event: Event<Cat>) {
                 if (event.data != null) {
-                    catView.showLoadingIndicator()
+                    loadingView.showLoadingIndicator()
                 } else {
-                    catView.showLoadingScreen()
+                    loadingView.showLoadingScreen()
                 }
             }
 
             override fun onIdle(event: Event<Cat>) {
                 if (event.data != null) {
-                    catView.showData()
+                    loadingView.showData()
                 } else {
-                    catView.showEmptyScreen()
+                    loadingView.showEmptyScreen()
                 }
             }
 
             override fun onError(event: Event<Cat>) {
                 if (event.data != null) {
-                    catView.showErrorScreen()
+                    loadingView.showErrorScreen()
                 } else {
-                    catView.showErrorIndicator()
+                    loadingView.showErrorIndicator()
                 }
             }
 
@@ -74,5 +79,13 @@ class CatPresenter(
                 throw UnsupportedOperationException("Completion on cats pipeline. This should never happen")
             }
         }
+
+    val retryListener = object : RetryClickedListener {
+
+        override fun onRetry() {
+            catUseCase.refreshCat()
+        }
+
+    }
 
 }

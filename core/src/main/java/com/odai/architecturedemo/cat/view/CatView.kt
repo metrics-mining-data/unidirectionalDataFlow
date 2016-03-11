@@ -6,16 +6,4 @@ interface CatView {
 
     fun display(cat: Cat)
 
-    fun showLoadingIndicator()
-
-    fun showLoadingScreen()
-
-    fun showData()
-
-    fun showEmptyScreen()
-
-    fun showErrorIndicator()
-
-    fun showErrorScreen()
-
 }

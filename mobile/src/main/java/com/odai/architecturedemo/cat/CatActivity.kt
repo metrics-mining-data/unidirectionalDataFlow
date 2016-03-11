@@ -7,6 +7,7 @@ import com.odai.architecturedemo.R
 import com.odai.architecturedemo.cat.view.CatView
 import com.odai.architecturedemo.cats.CatsPresenter
 import com.odai.architecturedemo.cats.view.CatsView
+import com.odai.architecturedemo.loading.LoadingView
 import com.odai.architecturedemo.navigation.AndroidNavigator
 
 class CatActivity : AppCompatActivity() {
@@ -22,10 +23,11 @@ class CatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cat)
-        val catView = findViewById(R.id.catView) as CatView
+        val catView = findViewById(R.id.content) as CatView
+        val loadingView = findViewById(R.id.loadingView) as LoadingView
         val id = intent.getIntExtra(AndroidNavigator.ID_EXTRA, -1)
         if(id == -1) throw IllegalArgumentException("Intent should contain the cat id")
-        catPresenter = CatPresenter(id, getCatApplication().catUseCase, catView)
+        catPresenter = CatPresenter(id, getCatApplication().catUseCase, catView, loadingView)
     }
 
     private fun getCatApplication(): CatApplication {

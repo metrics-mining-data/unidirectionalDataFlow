@@ -8,6 +8,10 @@ import rx.Observable
 
 class PersistedCatUseCase(val catsUseCase: CatsUseCase) : CatUseCase {
 
+    override fun refreshCat() {
+        catsUseCase.refreshCats()
+    }
+
     override fun getCatEvents(id: Int): Observable<Event<Cat>> {
         return catsUseCase.getCatsEvents().map {
             Event<Cat>(it.status, it?.data?.list?.first { it.id == id }, it.error)
