@@ -1,7 +1,7 @@
 package com.odai.architecturedemo.favourite.usecase
 
 import com.odai.architecturedemo.api.CatApi
-import com.odai.architecturedemo.cats.model.Cat
+import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.event.*
 import com.odai.architecturedemo.favourite.model.FavouriteCats
@@ -21,7 +21,7 @@ class PersistedFavouriteCatsUseCase(val api: CatApi, val repository: CatReposito
                 .doOnSubscribe { initialiseSubject() }
     }
 
-    override fun getFavouriteCats() = getFavouriteCatsEvents().compose(asData<FavouriteCats>())
+    override fun getFavouriteCats() = getFavouriteCatsEvents().compose(asData())
 
     private fun initialiseSubject() {
         if (isInitialised(favouriteCatsSubject)) {

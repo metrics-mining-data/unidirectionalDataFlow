@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import com.odai.architecturedemo.CatApplication
 import com.odai.architecturedemo.R
 import com.odai.architecturedemo.cats.view.CatsView
+import com.odai.architecturedemo.navigation.AndroidNavigator
 
 class CatsActivity : AppCompatActivity() {
 
@@ -18,9 +19,9 @@ class CatsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_cats)
         val catsView = findViewById(R.id.catsView) as CatsView
-        catsPresenter = CatsPresenter(getCatApplication().catsUseCase, getCatApplication().favouriteCatsUseCase, catsView)
+        catsPresenter = CatsPresenter(getCatApplication().catsUseCase, getCatApplication().favouriteCatsUseCase, AndroidNavigator(this), catsView)
     }
 
     private fun getCatApplication(): CatApplication {

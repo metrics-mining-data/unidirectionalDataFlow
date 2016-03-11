@@ -17,7 +17,7 @@ class PersistedCatsUseCase(val api: CatApi, val repository: CatRepository): Cats
                 .doOnSubscribe { initialiseSubject() }
     }
 
-    override fun getCats() = getCatsEvents().compose(asData<Cats>())
+    override fun getCats() = getCatsEvents().compose(asData())
 
     private fun initialiseSubject() {
         if (isInitialised(catsSubject)) {

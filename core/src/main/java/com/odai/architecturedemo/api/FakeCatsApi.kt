@@ -1,6 +1,6 @@
 package com.odai.architecturedemo.api
 
-import com.odai.architecturedemo.cats.model.Cat
+import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
 import rx.Observable
 import rx.Scheduler
@@ -9,14 +9,14 @@ import java.util.concurrent.TimeUnit
 
 class FakeCatsApi : CatApi {
 
-    var favouriteCats = Cats(listOf(Cat("Bar")))
+    var favouriteCats = Cats(listOf(Cat(2, "Bar")))
 
     override fun getFavouriteCats(): Observable<Cats> {
         return Observable.just(favouriteCats).delay(3, TimeUnit.SECONDS, Schedulers.immediate())
     }
 
     override fun getCats(): Observable<Cats> {
-        return Observable.just(Cats(listOf(Cat("Foo"), Cat("Bar")))).delay(3, TimeUnit.SECONDS, Schedulers.immediate())
+        return Observable.just(Cats(listOf(Cat(1, "Foo"), Cat(2, "Bar")))).delay(3, TimeUnit.SECONDS, Schedulers.immediate())
     }
 
     override fun addToFavourite(cat: Cat): Observable<Cat> {

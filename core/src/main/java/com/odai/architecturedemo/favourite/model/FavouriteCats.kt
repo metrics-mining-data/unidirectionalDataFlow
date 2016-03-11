@@ -1,6 +1,6 @@
 package com.odai.architecturedemo.favourite.model
 
-import com.odai.architecturedemo.cats.model.Cat
+import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.favourite.model.FavouriteState
 
 class FavouriteCats(val favourites: Map<Cat, FavouriteState>) {

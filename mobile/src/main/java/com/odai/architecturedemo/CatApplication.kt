@@ -4,6 +4,9 @@ import android.app.Application
 import com.odai.architecturedemo.cats.usecase.CatsUseCase
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.api.FakeCatsApi
+import com.odai.architecturedemo.cat.usecase.AsyncCatUseCase
+import com.odai.architecturedemo.cat.usecase.CatUseCase
+import com.odai.architecturedemo.cat.usecase.PersistedCatUseCase
 import com.odai.architecturedemo.cats.usecase.AsyncCatsUseCase
 import com.odai.architecturedemo.cats.usecase.PersistedCatsUseCase
 import com.odai.architecturedemo.favourite.usecase.AsyncFavouriteCatsUseCase
@@ -18,6 +21,7 @@ class CatApplication : Application() {
     private val repository : CatRepository = InMemoryCatRepo()
 
     val catsUseCase: CatsUseCase = AsyncCatsUseCase(PersistedCatsUseCase(api, repository))
+    val catUseCase: CatUseCase = AsyncCatUseCase(PersistedCatUseCase(catsUseCase))
     val favouriteCatsUseCase: FavouriteCatsUseCase = AsyncFavouriteCatsUseCase(PersistedFavouriteCatsUseCase(api, repository))
 
 }

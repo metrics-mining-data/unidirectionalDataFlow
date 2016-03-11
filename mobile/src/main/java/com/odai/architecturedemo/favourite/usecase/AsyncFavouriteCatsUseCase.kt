@@ -1,6 +1,6 @@
 package com.odai.architecturedemo.favourite.usecase
 
-import com.odai.architecturedemo.cats.model.Cat
+import com.odai.architecturedemo.cat.model.Cat
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers

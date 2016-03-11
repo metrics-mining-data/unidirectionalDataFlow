@@ -1,6 +1,6 @@
 package com.odai.architecturedemo.persistence
 
-import com.odai.architecturedemo.cats.model.Cat
+import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 class InMemoryCatRepo : CatRepository {
 
-    var cats: Cats = Cats(listOf(Cat("Foo")))
+    var cats: Cats = Cats(listOf(Cat(1, "Foo")))
     var favouriteCats: FavouriteCats = FavouriteCats(mapOf())
 
     override fun saveCats(cats: Cats) {

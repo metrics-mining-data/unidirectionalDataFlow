@@ -1,5 +1,7 @@
 package com.odai.architecturedemo.cats.model
 
+import com.odai.architecturedemo.cat.model.Cat
+
 data class Cats (val list: List<Cat>) {
 
     fun size(): Int {

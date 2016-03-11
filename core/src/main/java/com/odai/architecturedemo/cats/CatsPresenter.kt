@@ -1,6 +1,6 @@
 package com.odai.architecturedemo.cats
 
-import com.odai.architecturedemo.cats.model.Cat
+import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.cats.usecase.CatsUseCase
 import com.odai.architecturedemo.cats.view.CatsView
@@ -9,12 +9,14 @@ import com.odai.architecturedemo.event.EventObserver
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
 import com.odai.architecturedemo.favourite.usecase.FavouriteCatsUseCase
+import com.odai.architecturedemo.navigation.Navigator
 import rx.Observer
 import rx.subscriptions.CompositeSubscription
 
 class CatsPresenter(
         val catsUseCase: CatsUseCase,
         val favouriteCatsUseCase: FavouriteCatsUseCase,
+        val navigate: Navigator,
         val catsView: CatsView
 ) {
 
@@ -100,17 +102,24 @@ class CatsPresenter(
         }
 
     interface CatClickedListener {
-        fun onCatClicked(cat: Cat, state: FavouriteState): Unit
+        fun onFavouriteClicked(cat: Cat, state: FavouriteState)
+        fun onCatClicked(cat: Cat)
     }
 
     val listener: CatClickedListener = object : CatClickedListener {
-        override fun onCatClicked(cat: Cat, state: FavouriteState) {
+
+        override fun onCatClicked(cat: Cat) {
+            navigate.toCat(cat)
+        }
+
+        override fun onFavouriteClicked(cat: Cat, state: FavouriteState) {
             if (state == FavouriteState.FAVOURITE) {
                 favouriteCatsUseCase.removeFromFavourite(cat)
             } else if (state == FavouriteState.UN_FAVOURITE) {
                 favouriteCatsUseCase.addToFavourite(cat)
             }
         }
+
     }
 
 }
