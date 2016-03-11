@@ -18,21 +18,21 @@ class PersistedFavouriteCatsUseCase(val api: CatApi, val repository: CatReposito
 
     override fun getFavouriteCatsEvents(): Observable<Event<FavouriteCats>> {
         return favouriteCatsSubject.asObservable()
-                .doOnSubscribe { initialiseSubject() }
+                .startWith(initialiseSubject())
+                .distinctUntilChanged()
     }
 
     override fun getFavouriteCats() = getFavouriteCatsEvents().compose(asData())
 
-    private fun initialiseSubject() {
+    private fun initialiseSubject(): Observable<Event<FavouriteCats>> {
         if (isInitialised(favouriteCatsSubject)) {
-            return
+            return Observable.empty()
         }
-        repository.readFavouriteCats()
+        return repository.readFavouriteCats()
                 .flatMap { updateFromRemoteIfOutdated(it) }
                 .switchIfEmpty(fetchRemoteFavouriteCats())
                 .compose(asEvent<FavouriteCats>())
-                .subscribeOn(Schedulers.immediate())
-                .subscribe { favouriteCatsSubject.onNext(it) }
+                .doOnNext { favouriteCatsSubject.onNext(it) }
     }
 
     private fun updateFromRemoteIfOutdated(it: FavouriteCats): Observable<FavouriteCats>? {
@@ -68,7 +68,6 @@ class PersistedFavouriteCatsUseCase(val api: CatApi, val repository: CatReposito
                 .onErrorReturn { Pair(cat, FavouriteState.UN_FAVOURITE) }
                 .startWith(Pair(cat, FavouriteState.PENDING_FAVOURITE))
                 .doOnNext { repository.saveCatFavoriteStatus(it) }
-                .subscribeOn(Schedulers.immediate())
                 .subscribe(favouriteCatStateObserver)
     }
 
@@ -78,7 +77,6 @@ class PersistedFavouriteCatsUseCase(val api: CatApi, val repository: CatReposito
                 .onErrorReturn { Pair(cat, FavouriteState.FAVOURITE) }
                 .startWith(Pair(cat, FavouriteState.PENDING_UN_FAVOURITE))
                 .doOnNext { repository.saveCatFavoriteStatus(it) }
-                .subscribeOn(Schedulers.immediate())
                 .subscribe(favouriteCatStateObserver)
     }
 

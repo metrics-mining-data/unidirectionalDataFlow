@@ -8,27 +8,27 @@ import rx.Observable
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 
-class PersistedCatsUseCase(val api: CatApi, val repository: CatRepository): CatsUseCase {
+class PersistedCatsUseCase(val api: CatApi, val repository: CatRepository) : CatsUseCase {
 
     val catsSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create(Event<Cats>(Status.IDLE, null, null))
 
     override fun getCatsEvents(): Observable<Event<Cats>> {
         return catsSubject.asObservable()
-                .doOnSubscribe { initialiseSubject() }
+                .startWith(initialiseSubject())
+                .distinctUntilChanged()
     }
 
     override fun getCats() = getCatsEvents().compose(asData())
 
-    private fun initialiseSubject() {
+    private fun initialiseSubject(): Observable<Event<Cats>> {
         if (isInitialised(catsSubject)) {
-            return
+            return Observable.empty()
         }
-        repository.readCats()
+        return repository.readCats()
                 .flatMap { updateFromRemoteIfOutdated(it) }
                 .switchIfEmpty(fetchRemoteCats())
                 .compose(asEvent<Cats>())
-                .subscribeOn(Schedulers.immediate())
-                .subscribe { catsSubject.onNext(it) }
+                .doOnNext { catsSubject.onNext(it) }
     }
 
     private fun updateFromRemoteIfOutdated(it: Cats): Observable<Cats> {
