@@ -67,9 +67,9 @@ class CatsPresenter(
 
             override fun onError(event: Event<Cats>) {
                 if (event.data != null) {
-                    loadingView.showErrorScreen()
-                } else {
                     loadingView.showErrorIndicator()
+                } else {
+                    loadingView.showErrorScreen()
                 }
             }
 
