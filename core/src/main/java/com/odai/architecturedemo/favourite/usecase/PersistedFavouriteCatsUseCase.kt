@@ -3,6 +3,7 @@ package com.odai.architecturedemo.favourite.usecase
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
+import com.odai.architecturedemo.cats.usecase.CatsFreshnessChecker
 import com.odai.architecturedemo.event.*
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
@@ -12,7 +13,7 @@ import rx.Observer
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 
-class PersistedFavouriteCatsUseCase(val api: CatApi, val repository: CatRepository): FavouriteCatsUseCase {
+class PersistedFavouriteCatsUseCase(val api: CatApi, val repository: CatRepository, val freshnessChecker: CatsFreshnessChecker): FavouriteCatsUseCase {
 
     val favouriteCatsSubject: BehaviorSubject<Event<FavouriteCats>> = BehaviorSubject.create(Event<FavouriteCats>(Status.IDLE, null, null))
 
@@ -36,16 +37,11 @@ class PersistedFavouriteCatsUseCase(val api: CatApi, val repository: CatReposito
     }
 
     private fun updateFromRemoteIfOutdated(it: FavouriteCats): Observable<FavouriteCats>? {
-        return if (isOutdated(it)) {
-            fetchRemoteFavouriteCats().startWith(it)
-        } else {
+        return if (freshnessChecker.isFresh(it)) {
             Observable.just(it)
+        } else {
+            fetchRemoteFavouriteCats().startWith(it)
         }
-    }
-
-
-    private fun isOutdated(it: FavouriteCats): Boolean {
-        return true;
     }
 
     private fun fetchRemoteFavouriteCats(): Observable<FavouriteCats> {
@@ -72,7 +68,7 @@ class PersistedFavouriteCatsUseCase(val api: CatApi, val repository: CatReposito
     }
 
     override fun removeFromFavourite(cat: Cat) {
-        api.addToFavourite(cat)
+        api.removeFromFavourite(cat)
                 .map { Pair(cat, FavouriteState.UN_FAVOURITE) }
                 .onErrorReturn { Pair(cat, FavouriteState.FAVOURITE) }
                 .startWith(Pair(cat, FavouriteState.PENDING_UN_FAVOURITE))

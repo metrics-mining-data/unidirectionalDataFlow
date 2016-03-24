@@ -279,7 +279,6 @@ class PersistedCatsUseCaseTest {
 
         useCase.getCatsEvents().subscribe(testObserver)
 
-        testObserver.events
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
                 Event<Cats>(Status.ERROR, null, throwable)
