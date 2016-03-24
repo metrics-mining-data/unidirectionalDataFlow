@@ -13,6 +13,7 @@ import org.mockito.Mockito
 import org.mockito.Mockito.*
 import rx.observers.TestObserver
 import rx.subjects.BehaviorSubject
+import java.net.URI
 
 class PersistedCatsUseCaseTest {
 
@@ -33,7 +34,7 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoIsEmpty_on_GetCats_it_ShouldReturnCatsFromTheAPI() {
-        val cats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
+        val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
@@ -46,7 +47,7 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoIsEmpty_on_GetCats_it_ShouldSaveCatsFromTheAPIInTheRepo() {
-        val cats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
+        val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
@@ -59,8 +60,8 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreFresh_on_GetCats_it_ShouldReturnCatsFromTheRepo() {
-        val remoteCats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
-        val localCats = Cats(listOf(Cat(24, "Bar")))
+        val remoteCats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
+        val localCats = Cats(listOf(Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onNext(remoteCats)
         catApiSubject.onCompleted()
@@ -75,8 +76,8 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreExpired_on_GetCats_it_ShouldReturnCatsFromTheRepoThenCatsFromTheAPI() {
-        val remoteCats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
-        val localCats = Cats(listOf(Cat(24, "Bar")))
+        val remoteCats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
+        val localCats = Cats(listOf(Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onNext(remoteCats)
         catApiSubject.onCompleted()
@@ -91,8 +92,8 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreExpired_on_GetCats_it_ShouldSaveCatsFromTheAPIInTheRepo() {
-        val remoteCats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
-        val localCats = Cats(listOf(Cat(24, "Bar")))
+        val remoteCats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
+        val localCats = Cats(listOf(Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onNext(remoteCats)
         catApiSubject.onCompleted()
@@ -107,7 +108,7 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndAPIFails_on_GetCats_it_ShouldReturnCatsFromTheRepo() {
-        val localCats = Cats(listOf(Cat(24, "Bar")))
+        val localCats = Cats(listOf(Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onError(Throwable())
         catRepoSubject.onNext(localCats)
@@ -154,7 +155,7 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoFailsAndAPIHasCats_on_GetCats_it_ShouldReturnNothing() {
-        val cats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
+        val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
@@ -167,7 +168,7 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoIsEmpty_on_GetCatsEvents_it_ShouldReturnCatsFromTheAPI() {
-        val cats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
+        val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Event<Cats>>()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
@@ -184,8 +185,8 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreFresh_on_GetCatsEvents_it_ShouldReturnCatsFromTheRepo() {
-        val remoteCats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
-        val localCats = Cats(listOf(Cat(24, "Bar")))
+        val remoteCats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
+        val localCats = Cats(listOf(Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Event<Cats>>()
         catApiSubject.onNext(remoteCats)
         catApiSubject.onCompleted()
@@ -204,8 +205,8 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreExpired_on_GetCatsEvents_it_ShouldReturnCatsFromTheRepoThenCatsFromTheAPI() {
-        val remoteCats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
-        val localCats = Cats(listOf(Cat(24, "Bar")))
+        val remoteCats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
+        val localCats = Cats(listOf(Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Event<Cats>>()
         catApiSubject.onNext(remoteCats)
         catApiSubject.onCompleted()
@@ -270,7 +271,7 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoFailsAndAPIHasData_on_GetCatsEvents_it_ShouldReturnError() {
-        val cats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
+        val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Event<Cats>>()
         val throwable = Throwable()
         catApiSubject.onNext(cats)
@@ -287,7 +288,7 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasDataAndAPIFails_on_GetCatsEvents_it_ShouldReturnErrorWithData() {
-        val localCats = Cats(listOf(Cat(24, "Bar")))
+        val localCats = Cats(listOf(Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Event<Cats>>()
         val throwable = Throwable()
         catApiSubject.onError(throwable)
@@ -305,8 +306,8 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_apiDataHasChanged_on_RefreshCats_it_ShouldReturnNewData() {
-        val cats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
-        val catsRefreshed = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar"), Cat(424, "New")))
+        val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
+        val catsRefreshed = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")), Cat(424, "New", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
@@ -323,7 +324,7 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_apiDataHasNotChanged_on_RefreshCats_it_ShouldReturnNoAdditionalData() {
-        val cats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
+        val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
@@ -340,8 +341,8 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_apiDataHasChanged_on_RefreshCats_it_ShouldPersistNewDataToRepository() {
-        val cats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
-        val catsRefreshed = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar"), Cat(424, "New")))
+        val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
+        val catsRefreshed = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")), Cat(424, "New", URI.create(""))))
         val testObserver = TestObserver<Cats>()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
@@ -358,8 +359,8 @@ class PersistedCatsUseCaseTest {
 
     @Test
     fun given_useCaseHasAlreadySentData_on_RefreshCats_it_ShouldRestartLoading() {
-        val cats = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar")))
-        val catsRefreshed = Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar"), Cat(424, "New")))
+        val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
+        val catsRefreshed = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")), Cat(424, "New", URI.create(""))))
         val testObserver = TestObserver<Event<Cats>>()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()

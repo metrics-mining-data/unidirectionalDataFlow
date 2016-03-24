@@ -21,6 +21,6 @@ class CatApplication : Application() {
 
     val catsUseCase: CatsUseCase = AsyncCatsUseCase(PersistedCatsUseCase(api, repository, freshnessChecker))
     val catUseCase: CatUseCase = AsyncCatUseCase(PersistedCatUseCase(catsUseCase))
-    val favouriteCatsUseCase: FavouriteCatsUseCase = AsyncFavouriteCatsUseCase(PersistedFavouriteCatsUseCase(api, repository))
+    val favouriteCatsUseCase: FavouriteCatsUseCase = AsyncFavouriteCatsUseCase(PersistedFavouriteCatsUseCase(api, repository, freshnessChecker))
 
 }

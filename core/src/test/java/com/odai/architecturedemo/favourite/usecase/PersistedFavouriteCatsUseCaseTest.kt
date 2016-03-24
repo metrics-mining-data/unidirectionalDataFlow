@@ -4,22 +4,19 @@ import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.cats.usecase.CatsFreshnessChecker
-import com.odai.architecturedemo.cats.usecase.CatsUseCase
-import com.odai.architecturedemo.cats.usecase.PersistedCatsUseCase
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.Status
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
 import com.odai.architecturedemo.persistence.CatRepository
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
-import org.mockito.stubbing.Answer
 import rx.Observable
 import rx.observers.TestObserver
 import rx.subjects.BehaviorSubject
+import java.net.URI
 
 class PersistedFavouriteCatsUseCaseTest {
 
@@ -35,12 +32,15 @@ class PersistedFavouriteCatsUseCaseTest {
     @Before
     fun setUp() {
         setUpUseCase()
-        var useCase: CatsUseCase = PersistedCatsUseCase(api, repository, freshnessChecker)
+        useCase = PersistedFavouriteCatsUseCase(api, repository, freshnessChecker)
     }
 
     @Test
     fun given_TheRepoIsEmpty_on_GetFavouriteCats_it_ShouldReturnCatsFromTheAPI() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
         catApiSubject.onNext(Cats(cats.favourites.keys.toList()))
         catApiSubject.onCompleted()
@@ -53,7 +53,10 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoIsEmpty_on_GetFavouriteCats_it_ShouldSaveCatsFromTheAPIInTheRepo() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
         catApiSubject.onNext(Cats(cats.favourites.keys.toList()))
         catApiSubject.onCompleted()
@@ -66,8 +69,13 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreFresh_on_GetFavouriteCats_it_ShouldReturnCatsFromTheRepo() {
-        val remoteCats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
-        val localCats = FavouriteCats(mapOf(Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val remoteCats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
+        val localCats = FavouriteCats(mapOf(
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
         catApiSubject.onNext(Cats(remoteCats.favourites.keys.toList()))
         catApiSubject.onCompleted()
@@ -82,8 +90,13 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreExpired_on_GetFavouriteCats_it_ShouldReturnCatsFromTheRepoThenCatsFromTheAPI() {
-        val remoteCats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
-        val localCats = FavouriteCats(mapOf(Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val remoteCats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
+        val localCats = FavouriteCats(mapOf(
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
         catApiSubject.onNext(Cats(remoteCats.favourites.keys.toList()))
         catApiSubject.onCompleted()
@@ -98,8 +111,13 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreExpired_on_GetFavouriteCats_it_ShouldSaveCatsFromTheAPIInTheRepo() {
-        val remoteCats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
-        val localCats = FavouriteCats(mapOf(Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val remoteCats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
+        val localCats = FavouriteCats(mapOf(
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
         catApiSubject.onNext(Cats(remoteCats.favourites.keys.toList()))
         catApiSubject.onCompleted()
@@ -114,7 +132,9 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndAPIFails_on_GetFavouriteCats_it_ShouldReturnCatsFromTheRepo() {
-        val localCats = FavouriteCats(mapOf(Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val localCats = FavouriteCats(mapOf(
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
         catApiSubject.onError(Throwable())
         catRepoSubject.onNext(localCats)
@@ -161,7 +181,9 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoFailsAndAPIHasCats_on_GetFavouriteCats_it_ShouldReturnNothing() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
         catApiSubject.onNext(Cats(cats.favourites.keys.toList()))
         catApiSubject.onCompleted()
@@ -174,7 +196,9 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoIsEmpty_on_GetFavouriteCatsEvents_it_ShouldReturnCatsFromTheAPI() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<Event<FavouriteCats>>()
         catApiSubject.onNext(Cats(cats.favourites.keys.toList()))
         catApiSubject.onCompleted()
@@ -191,8 +215,13 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreFresh_on_GetFavouriteCatsEvents_it_ShouldReturnCatsFromTheRepo() {
-        val remoteCats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
-        val localCats = FavouriteCats(mapOf(Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val remoteCats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
+        val localCats = FavouriteCats(mapOf(
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<Event<FavouriteCats>>()
         catApiSubject.onNext(Cats(remoteCats.favourites.keys.toList()))
         catApiSubject.onCompleted()
@@ -211,8 +240,13 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasCatsAndCatsAreExpired_on_GetFavouriteCatsEvents_it_ShouldReturnCatsFromTheRepoThenCatsFromTheAPI() {
-        val remoteCats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
-        val localCats = FavouriteCats(mapOf(Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val remoteCats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
+        val localCats = FavouriteCats(mapOf(
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<Event<FavouriteCats>>()
         catApiSubject.onNext(Cats(remoteCats.favourites.keys.toList()))
         catApiSubject.onCompleted()
@@ -248,7 +282,6 @@ class PersistedFavouriteCatsUseCaseTest {
     @Test
     fun given_TheRepoIsEmptyAndAPIIsEmpty_on_GetFavouriteCatsEvents_it_ShouldReturnEmpty() {
         val testObserver = TestObserver<Event<FavouriteCats>>()
-        val throwable = Throwable()
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
 
@@ -277,7 +310,10 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoFailsAndAPIHasData_on_GetFavouriteCatsEvents_it_ShouldReturnError() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<Event<FavouriteCats>>()
         val throwable = Throwable()
         catApiSubject.onNext(Cats(cats.favourites.keys.toList()))
@@ -294,7 +330,10 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheRepoHasDataAndAPIFails_on_GetFavouriteCatsEvents_it_ShouldReturnErrorWithData() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<Event<FavouriteCats>>()
         val throwable = Throwable()
         catApiSubject.onError(throwable)
@@ -312,167 +351,213 @@ class PersistedFavouriteCatsUseCaseTest {
 
     @Test
     fun given_TheUseCaseDeliveredData_on_AddToFavourite_it_ShouldAddTheCatToTheFavourite() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
-        val throwable = Throwable()
         catRepoSubject.onNext(cats)
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(cats)).thenReturn(true)
         useCase.getFavouriteCats().subscribe(testObserver)
-        `when`(api.addToFavourite(Cat(424, "New"))).then(Answer {
+        `when`(api.addToFavourite(Cat(424, "New", URI.create("")))).then({
             Observable.just(it.arguments[0])
         })
 
-        useCase.addToFavourite(Cat(424, "New"))
+        useCase.addToFavourite(Cat(424, "New", URI.create("")))
 
         testObserver.assertReceivedOnNext(listOf(
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE))),
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(424, "New"), FavouriteState.PENDING_FAVOURITE))),
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(424, "New"), FavouriteState.FAVOURITE)))
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE)
+                )),
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(424, "New", URI.create("")), FavouriteState.PENDING_FAVOURITE)
+                )),
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(424, "New", URI.create("")), FavouriteState.FAVOURITE)
+                ))
         ))
     }
 
     @Test
     fun given_TheFavouriteApiFails_on_AddToFavourite_it_ShouldRevertTheCatToUnfavorite() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
-        val throwable = Throwable()
         catRepoSubject.onNext(cats)
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(cats)).thenReturn(true)
         useCase.getFavouriteCats().subscribe(testObserver)
-        `when`(api.addToFavourite(Cat(424, "New"))).then(Answer {
+        `when`(api.addToFavourite(Cat(424, "New", URI.create("")))).then({
             Observable.error<Cat>(Throwable())
         })
 
-        useCase.addToFavourite(Cat(424, "New"))
+        useCase.addToFavourite(Cat(424, "New", URI.create("")))
 
         testObserver.assertReceivedOnNext(listOf(
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE))),
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(424, "New"), FavouriteState.PENDING_FAVOURITE))),
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(424, "New"), FavouriteState.UN_FAVOURITE)))
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE)
+                )),
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(424, "New", URI.create("")), FavouriteState.PENDING_FAVOURITE)
+                )),
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(424, "New", URI.create("")), FavouriteState.UN_FAVOURITE)
+                ))
         ))
     }
 
     @Test
     fun given_TheUseCaseDeliveredData_on_RemoveFromFavourite_it_ShouldRemoveTheCatFromTheFavourite() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
-        val throwable = Throwable()
         catRepoSubject.onNext(cats)
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(cats)).thenReturn(true)
         useCase.getFavouriteCats().subscribe(testObserver)
-        `when`(api.removeFromFavourite(Cat(24, "Bar"))).then(Answer {
+        `when`(api.removeFromFavourite(Cat(24, "Bar", URI.create("")))).then({
             Observable.just(it.arguments[0])
         })
 
-        useCase.removeFromFavourite(Cat(24, "Bar"))
+        useCase.removeFromFavourite(Cat(24, "Bar", URI.create("")))
 
         testObserver.assertReceivedOnNext(listOf(
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE))),
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.PENDING_UN_FAVOURITE))),
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.UN_FAVOURITE)))
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+                )),
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(24, "Bar", URI.create("")), FavouriteState.PENDING_UN_FAVOURITE)
+                )),
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(24, "Bar", URI.create("")), FavouriteState.UN_FAVOURITE)
+                ))
         ))
     }
 
     @Test
     fun given_TheFavouriteApiFails_on_RemoveFromFavourite_it_ShouldRevertTheCatBackToFavourite() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
-        val throwable = Throwable()
         catRepoSubject.onNext(cats)
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(cats)).thenReturn(true)
         useCase.getFavouriteCats().subscribe(testObserver)
-        `when`(api.removeFromFavourite(Cat(24, "Bar"))).then(Answer {
+        `when`(api.removeFromFavourite(Cat(24, "Bar", URI.create("")))).then({
             Observable.error<Cat>(Throwable())
         })
 
-        useCase.removeFromFavourite(Cat(24, "Bar"))
+        useCase.removeFromFavourite(Cat(24, "Bar", URI.create("")))
 
         testObserver.assertReceivedOnNext(listOf(
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE))),
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.PENDING_UN_FAVOURITE))),
-                FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+                )),
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(24, "Bar", URI.create("")), FavouriteState.PENDING_UN_FAVOURITE)
+                )),
+                FavouriteCats(mapOf(
+                        Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                        Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+                ))
         ))
     }
 
     @Test
     fun given_TheUseCaseDeliveredData_on_AddToFavourite_it_ShouldPersistTheCatStateToTheRepo() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
-        val throwable = Throwable()
         catRepoSubject.onNext(cats)
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(cats)).thenReturn(true)
         useCase.getFavouriteCats().subscribe(testObserver)
-        `when`(api.addToFavourite(Cat(424, "New"))).then(Answer {
+        `when`(api.addToFavourite(Cat(424, "New", URI.create("")))).then({
             Observable.just(it.arguments[0])
         })
 
-        useCase.addToFavourite(Cat(424, "New"))
+        useCase.addToFavourite(Cat(424, "New", URI.create("")))
 
-        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(424, "New"), FavouriteState.PENDING_FAVOURITE))
-        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(424, "New"), FavouriteState.FAVOURITE))
+        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(424, "New", URI.create("")), FavouriteState.PENDING_FAVOURITE))
+        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(424, "New", URI.create("")), FavouriteState.FAVOURITE))
     }
 
     @Test
     fun given_TheFavouriteApiFails_on_AddToFavourite_it_ShouldPersistTheCatStateToTheRepo() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
-        val throwable = Throwable()
         catRepoSubject.onNext(cats)
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(cats)).thenReturn(true)
         useCase.getFavouriteCats().subscribe(testObserver)
-        `when`(api.addToFavourite(Cat(424, "New"))).then(Answer {
+        `when`(api.addToFavourite(Cat(424, "New", URI.create("")))).then({
             Observable.error<Cat>(Throwable())
         })
 
-        useCase.addToFavourite(Cat(424, "New"))
+        useCase.addToFavourite(Cat(424, "New", URI.create("")))
 
-        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(424, "New"), FavouriteState.PENDING_FAVOURITE))
-        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(424, "New"), FavouriteState.UN_FAVOURITE))
+        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(424, "New", URI.create("")), FavouriteState.PENDING_FAVOURITE))
+        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(424, "New", URI.create("")), FavouriteState.UN_FAVOURITE))
     }
 
     @Test
     fun given_TheUseCaseDeliveredData_on_RemoveFromFavourite_it_ShouldPersistTheCatStateToTheRepo() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
-        val throwable = Throwable()
         catRepoSubject.onNext(cats)
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(cats)).thenReturn(true)
         useCase.getFavouriteCats().subscribe(testObserver)
-        `when`(api.removeFromFavourite(Cat(24, "Bar"))).then(Answer {
+        `when`(api.removeFromFavourite(Cat(24, "Bar", URI.create("")))).then({
             Observable.just(it.arguments[0])
         })
 
-        useCase.removeFromFavourite(Cat(24, "Bar"))
+        useCase.removeFromFavourite(Cat(24, "Bar", URI.create("")))
 
-        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(24, "Bar"), FavouriteState.PENDING_UN_FAVOURITE))
-        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(24, "Bar"), FavouriteState.UN_FAVOURITE))
+        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(24, "Bar", URI.create("")), FavouriteState.PENDING_UN_FAVOURITE))
+        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(24, "Bar", URI.create("")), FavouriteState.UN_FAVOURITE))
     }
 
     @Test
     fun given_TheFavouriteApiFails_on_RemoveFromFavourite_it_ShouldPersistTheCatStateToTheRepo() {
-        val cats = FavouriteCats(mapOf(Pair(Cat(42, "Foo"), FavouriteState.FAVOURITE), Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE)))
+        val cats = FavouriteCats(mapOf(
+                Pair(Cat(42, "Foo", URI.create("")), FavouriteState.FAVOURITE),
+                Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE)
+        ))
         val testObserver = TestObserver<FavouriteCats>()
-        val throwable = Throwable()
         catRepoSubject.onNext(cats)
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(cats)).thenReturn(true)
         useCase.getFavouriteCats().subscribe(testObserver)
-        `when`(api.removeFromFavourite(Cat(24, "Bar"))).then(Answer {
+        `when`(api.removeFromFavourite(Cat(24, "Bar", URI.create("")))).then({
             Observable.error<Cat>(Throwable())
         })
 
-        useCase.removeFromFavourite(Cat(24, "Bar"))
+        useCase.removeFromFavourite(Cat(24, "Bar", URI.create("")))
 
 
-        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(24, "Bar"), FavouriteState.PENDING_UN_FAVOURITE))
-        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(24, "Bar"), FavouriteState.FAVOURITE))
+        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(24, "Bar", URI.create("")), FavouriteState.PENDING_UN_FAVOURITE))
+        Mockito.verify(repository).saveCatFavoriteStatus(Pair(Cat(24, "Bar", URI.create("")), FavouriteState.FAVOURITE))
     }
 
     private fun setUpUseCase() {

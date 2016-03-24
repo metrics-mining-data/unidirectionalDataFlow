@@ -5,6 +5,11 @@
   android:minHeight="50dp"
   android:orientation="horizontal">
 
+  <ImageView
+    android:id="@+id/avatar"
+    android:layout_width="50dp"
+    android:layout_height="50dp" />
+
   <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/catLabel"
     android:layout_width="0dp"

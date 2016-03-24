@@ -11,6 +11,7 @@ import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 import rx.subjects.BehaviorSubject
+import java.net.URI
 
 
 class PersistedCatUseCaseTest {
@@ -34,25 +35,25 @@ class PersistedCatUseCaseTest {
 
     @Test
     fun given_aUseCaseWithCats_on_getCatWithId_it_ShouldCallReturnCatForId() {
-        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar"))), null))
+        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")))), null))
 
         val cat = useCase.getCat(24).toBlocking().first()
 
-        assertEquals(Cat(24, "Bar"), cat)
+        assertEquals(Cat(24, "Bar", URI.create("")), cat)
     }
 
     @Test
     fun given_aUseCaseWithCats_on_getCatEvents_it_ShouldCallReturnCatForId() {
-        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar"))), null))
+        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")))), null))
 
         val catEvent = useCase.getCatEvents(42).toBlocking().first()
 
-        assertEquals(Cat(42, "Foo"), catEvent.data)
+        assertEquals(Cat(42, "Foo", URI.create("")), catEvent.data)
     }
 
     @Test
     fun given_aUseCaseWithStatus_on_getCatEvents_it_ShouldCallReturnMatchingStatus() {
-        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar"))), null))
+        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")))), null))
 
         val catEvent = useCase.getCatEvents(24).toBlocking().first()
 
@@ -62,7 +63,7 @@ class PersistedCatUseCaseTest {
     @Test
     fun given_aUseCaseWithError_on_getCatEvents_it_ShouldCallReturnMatchingError() {
         var error = Throwable("Failed")
-        catsEventSubject.onNext(Event(Status.ERROR, Cats(listOf(Cat(42, "Foo"), Cat(24, "Bar"))), error))
+        catsEventSubject.onNext(Event(Status.ERROR, Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")))), error))
 
         val catEvent = useCase.getCatEvents(24).toBlocking().first()
 

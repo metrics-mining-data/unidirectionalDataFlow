@@ -12,6 +12,7 @@ import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 import rx.subjects.BehaviorSubject
+import java.net.URI
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -41,9 +42,9 @@ class CatPresenterTest {
     fun given_ThePresenterIsPresenting_on_EmissionOfANewCat_it_ShouldPresentTheCatToTheView() {
         givenThePresenterIsPresenting()
 
-        catSubject.onNext(Cat(42, "NewCat"))
+        catSubject.onNext(Cat(42, "NewCat", URI.create("")))
 
-        verify(view).display(Cat(42, "NewCat"))
+        verify(view).display(Cat(42, "NewCat", URI.create("")))
     }
 
     @Test
@@ -59,7 +60,7 @@ class CatPresenterTest {
     fun given_ThePresenterIsPresenting_on_EmissionOfALoadingEventWithData_it_ShouldPresentTheLoadingIndicator() {
         givenThePresenterIsPresenting()
 
-        catEventSubject.onNext(Event(Status.LOADING, Cat(42, "NewCat"), null))
+        catEventSubject.onNext(Event(Status.LOADING, Cat(42, "NewCat", URI.create("")), null))
 
         verify(loadingView).showLoadingIndicator()
     }
@@ -77,7 +78,7 @@ class CatPresenterTest {
     fun given_ThePresenterIsPresenting_on_EmissionOfAnIdleEventWithData_it_ShouldPresentData() {
         givenThePresenterIsPresenting()
 
-        catEventSubject.onNext(Event(Status.IDLE, Cat(42, "NewCat"), null))
+        catEventSubject.onNext(Event(Status.IDLE, Cat(42, "NewCat", URI.create("")), null))
 
         verify(loadingView).showData()
     }
@@ -95,7 +96,7 @@ class CatPresenterTest {
     fun given_ThePresenterIsPresenting_on_EmissionOfAnErrorEventWithData_it_ShouldPresentTheErrorIndicator() {
         givenThePresenterIsPresenting()
 
-        catEventSubject.onNext(Event(Status.ERROR, Cat(42, "NewCat"), null))
+        catEventSubject.onNext(Event(Status.ERROR, Cat(42, "NewCat", URI.create("")), null))
 
         verify(loadingView).showErrorIndicator()
     }
@@ -113,7 +114,7 @@ class CatPresenterTest {
     fun given_ThePresenterStoppedPresenting_on_EmissionOfANewCat_it_ShouldNotPresentTheCatToTheView() {
         givenThePresenterStoppedPresenting()
 
-        catSubject.onNext(Cat(42, "NewCat"))
+        catSubject.onNext(Cat(42, "NewCat", URI.create("")))
 
         verifyZeroInteractions(view)
     }

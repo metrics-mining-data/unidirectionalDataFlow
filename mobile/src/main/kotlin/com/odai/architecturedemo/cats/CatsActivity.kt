@@ -8,6 +8,7 @@ import com.odai.architecturedemo.cats.view.AndroidCatsView
 import com.odai.architecturedemo.cats.view.CatsView
 import com.odai.architecturedemo.loading.LoadingView
 import com.odai.architecturedemo.navigation.AndroidNavigator
+import kotlinx.android.synthetic.main.activity_cats.*
 
 class CatsActivity : AppCompatActivity() {
 
@@ -22,13 +23,11 @@ class CatsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cats)
-        val catsView = findViewById(R.id.content) as CatsView
-        val loadingView = findViewById(R.id.loadingView) as LoadingView
         catsPresenter = CatsPresenter(
                 getCatApplication().catsUseCase,
                 getCatApplication().favouriteCatsUseCase,
                 AndroidNavigator(this),
-                catsView,
+                content,
                 loadingView
         )
     }

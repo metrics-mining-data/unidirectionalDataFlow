@@ -6,11 +6,12 @@ import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
 import rx.Observable
 import rx.schedulers.Schedulers
+import java.net.URI
 import java.util.concurrent.TimeUnit
 
 class InMemoryCatRepo : CatRepository {
 
-    var cats: Cats = Cats(listOf(Cat(1, "Foo")))
+    var cats: Cats = Cats(listOf(Cat(418, "I'm a Teapot", URI.create("https://http.cat/418"))))
     var favouriteCats: FavouriteCats = FavouriteCats(mapOf())
 
     override fun saveCats(cats: Cats) {
