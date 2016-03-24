@@ -17,8 +17,8 @@ import kotlin.test.assertTrue
 
 class CatPresenterTest {
 
-    var catSubject: BehaviorSubject<Cat> = BehaviorSubject.create<Cat>()
-    var catEventSubject: BehaviorSubject<Event<Cat>> = BehaviorSubject.create<Event<Cat>>()
+    var catSubject: BehaviorSubject<Cat> = BehaviorSubject.create()
+    var catEventSubject: BehaviorSubject<Event<Cat>> = BehaviorSubject.create()
     var useCase: CatUseCase = mock(CatUseCase::class.java)
 
     var view: CatView = mock(CatView::class.java)
@@ -186,8 +186,8 @@ class CatPresenterTest {
     }
 
     private fun setUpUseCase() {
-        catSubject = BehaviorSubject.create<Cat>()
-        catEventSubject = BehaviorSubject.create<Event<Cat>>()
+        catSubject = BehaviorSubject.create()
+        catEventSubject = BehaviorSubject.create()
         `when`(useCase.getCat(Mockito.anyInt())).thenReturn(catSubject)
         `when`(useCase.getCatEvents(Mockito.anyInt())).thenReturn(catEventSubject)
     }

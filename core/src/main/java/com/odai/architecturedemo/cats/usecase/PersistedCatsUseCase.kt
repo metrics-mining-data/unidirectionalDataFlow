@@ -7,7 +7,7 @@ import com.odai.architecturedemo.persistence.CatRepository
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
-class PersistedCatsUseCase(val api: CatApi, val repository: CatRepository) : CatsUseCase {
+class PersistedCatsUseCase(val api: CatApi, val repository: CatRepository, val catsFreshnessChecker: CatsFreshnessChecker) : CatsUseCase {
 
     val catsSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create(Event<Cats>(Status.IDLE, null, null))
 
@@ -37,15 +37,11 @@ class PersistedCatsUseCase(val api: CatApi, val repository: CatRepository) : Cat
     }
 
     private fun updateFromRemoteIfOutdated(it: Cats): Observable<Cats> {
-        return if (isOutdated(it)) {
-            fetchRemoteCats().startWith(it)
-        } else {
+        return if (catsFreshnessChecker.isFresh(it)) {
             Observable.just(it)
+        } else {
+            fetchRemoteCats().startWith(it)
         }
-    }
-
-    private fun isOutdated(it: Cats): Boolean {
-        return true;
     }
 
     private fun fetchRemoteCats() = api.getCats()

@@ -21,11 +21,11 @@ import kotlin.test.assertTrue
 
 class CatsPresenterTest {
 
-    var catsSubject: BehaviorSubject<Cats> = BehaviorSubject.create<Cats>()
-    var catsEventSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create<Event<Cats>>()
+    var catsSubject: BehaviorSubject<Cats> = BehaviorSubject.create()
+    var catsEventSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create()
     var useCase: CatsUseCase = mock(CatsUseCase::class.java)
 
-    var favouriteCatsSubject: BehaviorSubject<FavouriteCats> = BehaviorSubject.create<FavouriteCats>()
+    var favouriteCatsSubject: BehaviorSubject<FavouriteCats> = BehaviorSubject.create()
     var favouriteUseCase: FavouriteCatsUseCase = mock(FavouriteCatsUseCase::class.java)
 
     var view: CatsView = mock(CatsView::class.java)
@@ -288,9 +288,9 @@ class CatsPresenterTest {
     }
 
     private fun setUpUseCase() {
-        catsSubject = BehaviorSubject.create<Cats>()
-        catsEventSubject = BehaviorSubject.create<Event<Cats>>()
-        favouriteCatsSubject = BehaviorSubject.create<FavouriteCats>()
+        catsSubject = BehaviorSubject.create()
+        catsEventSubject = BehaviorSubject.create()
+        favouriteCatsSubject = BehaviorSubject.create()
         `when`(useCase.getCats()).thenReturn(catsSubject)
         `when`(useCase.getCatsEvents()).thenReturn(catsEventSubject)
         `when`(favouriteUseCase.getFavouriteCats()).thenReturn(favouriteCatsSubject)
