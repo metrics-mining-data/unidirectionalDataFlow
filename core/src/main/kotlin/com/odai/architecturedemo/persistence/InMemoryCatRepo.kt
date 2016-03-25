@@ -11,7 +11,14 @@ import java.util.concurrent.TimeUnit
 
 class InMemoryCatRepo : CatRepository {
 
-    var cats: Cats = Cats(listOf(Cat(418, "I'm a Teapot", URI.create("https://http.cat/418"))))
+    var cats: Cats = Cats(listOf(
+            Cat(100, "Continue", URI.create("https://http.cat/100")),
+            Cat(200, "Ok", URI.create("https://http.cat/200")),
+            Cat(404, "Not Found", URI.create("https://http.cat/404")),
+            Cat(411, "Length Required", URI.create("https://http.cat/411")),
+            Cat(418, "I'm a Teapot", URI.create("https://http.cat/418")),
+            Cat(500, "Internal Server Error", URI.create("https://http.cat/500"))
+    ))
     var favouriteCats: FavouriteCats = FavouriteCats(mapOf())
 
     override fun saveCats(cats: Cats) {

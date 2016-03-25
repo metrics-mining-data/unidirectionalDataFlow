@@ -9,7 +9,10 @@ import java.util.concurrent.TimeUnit
 
 class FakeCatsApi : CatApi {
 
-    var favouriteCats = Cats(listOf(Cat(418, "I'm a Teapot", URI.create("https://http.cat/418"))))
+    var favouriteCats = Cats(listOf(
+            Cat(411, "Length Required", URI.create("https://http.cat/411")),
+            Cat(418, "I'm a Teapot", URI.create("https://http.cat/418"))
+    ))
 
     override fun getFavouriteCats(): Observable<Cats> {
         return Observable.just(favouriteCats).delay(2, TimeUnit.SECONDS, Schedulers.immediate())
