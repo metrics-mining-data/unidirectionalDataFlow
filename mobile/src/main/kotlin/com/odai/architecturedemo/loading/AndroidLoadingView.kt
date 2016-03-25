@@ -1,6 +1,7 @@
 package com.odai.architecturedemo.loading
 
 import android.content.Context
+import android.support.design.widget.Snackbar
 import android.util.AttributeSet
 import android.view.View
 import android.widget.*
@@ -18,7 +19,7 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingView, F
             _content = value
         };
 
-    private var toast: Toast? = null
+    private var snackBar: Snackbar? = null
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -35,46 +36,49 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingView, F
     override fun showLoadingIndicator() {
         content.visibility = VISIBLE
         loadingContainer.visibility = GONE
-        displayToast("Still loading data")
+        displaySnackBar("Still loading data")
     }
 
     override fun showErrorIndicator() {
         content.visibility = VISIBLE
         loadingContainer.visibility = GONE
-        displayToast("An error has occurred")
+        displaySnackBar("An error has occurred")
     }
 
     override fun showLoadingScreen() {
-        toast?.cancel()
+        snackBar?.dismiss()
         content.visibility = GONE
         loadingContainer.visibility = VISIBLE
         loadingLabel.text = "LOADING"
     }
 
     override fun showData() {
-        toast?.cancel()
+        snackBar?.dismiss()
         content.visibility = VISIBLE
         loadingContainer.visibility = GONE
     }
 
     override fun showEmptyScreen() {
-        toast?.cancel()
+        snackBar?.dismiss()
         content.visibility = GONE
         loadingContainer.visibility = VISIBLE
         loadingLabel.text = "EMPTY"
     }
 
     override fun showErrorScreen() {
-        toast?.cancel()
+        snackBar?.dismiss()
         content.visibility = GONE
         loadingContainer.visibility = VISIBLE
         loadingLabel.text = "ERROR"
     }
 
-    private fun displayToast(message: String) {
-        toast?.cancel()
-        toast = Toast.makeText(context, message, Toast.LENGTH_LONG)
-        toast!!.show()
+    private fun displaySnackBar(message: String) {
+        if (snackBar?.isShown ?: false) {
+            snackBar!!.setText(message)
+        } else {
+            snackBar = Snackbar.make(this, message, Snackbar.LENGTH_INDEFINITE)
+            snackBar?.show()
+        }
     }
 
 }

@@ -9,21 +9,18 @@ import java.util.concurrent.TimeUnit
 
 class FakeCatsApi : CatApi {
 
-    var favouriteCats = Cats(listOf(
-            Cat(411, "Length Required", URI.create("https://http.cat/411")),
-            Cat(418, "I'm a Teapot", URI.create("https://http.cat/418"))
-    ))
+    var favouriteCats = Cats(listOf())
 
     override fun getFavouriteCats(): Observable<Cats> {
-        return Observable.just(favouriteCats).delay(2, TimeUnit.SECONDS, Schedulers.immediate())
+        return Observable.just(favouriteCats).delay(2, TimeUnit.SECONDS, Schedulers.immediate()).first()
     }
 
     override fun getCats(): Observable<Cats> {
-        return Observable.just(fakeCats()).delay(2, TimeUnit.SECONDS, Schedulers.immediate())
+        return Observable.just(fakeCats()).delay(2, TimeUnit.SECONDS, Schedulers.immediate()).first()
     }
 
     override fun addToFavourite(cat: Cat): Observable<Cat> {
-        return Observable.just(cat).delay(2, TimeUnit.SECONDS, Schedulers.immediate())
+        return Observable.just(cat).delay(2, TimeUnit.SECONDS, Schedulers.immediate()).first()
                 .doOnNext {
                     favouriteCats = favouriteCats.add(cat)
                 }
