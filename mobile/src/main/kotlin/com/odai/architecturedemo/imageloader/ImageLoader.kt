@@ -5,6 +5,7 @@ import com.bumptech.glide.DrawableRequestBuilder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.target.Target
 import java.net.URI
@@ -40,6 +41,7 @@ class ImageRequestBuilder(internal val uri: URI) {
                         when (crop) {
                             Crop.CENTER_CROP -> arrayOf(CenterCrop(context))
                             Crop.CIRCLE_CROP -> arrayOf(CenterCrop(context), CircleCrop(context))
+                            Crop.FIT_CENTER -> arrayOf(FitCenter(context))
                             else -> arrayOf()
                         }
                 )
@@ -68,6 +70,7 @@ class ImageRequest() {
 
 enum class Crop {
     CENTER_CROP,
+    FIT_CENTER,
     CIRCLE_CROP
 }
 
