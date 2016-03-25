@@ -9,6 +9,8 @@ import com.odai.architecturedemo.R
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.CatsPresenter
 import com.odai.architecturedemo.favourite.model.FavouriteState
+import com.odai.architecturedemo.imageloader.Crop
+import com.odai.architecturedemo.imageloader.load
 import kotlinx.android.synthetic.main.cat_entry_view.view.*
 
 class CatEntryView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
@@ -19,15 +21,20 @@ class CatEntryView(context: Context, attrs: AttributeSet) : LinearLayout(context
 
     fun display(cat: Cat, favouriteState: FavouriteState, listener: CatsPresenter.CatClickedListener) {
         catLabel.text = cat.name
-        catLabel.setOnClickListener {
-            listener.onCatClicked(cat)
-        }
         favouriteIndicator.clearColorFilter()
         favouriteIndicator.setImageDrawable(favouriteDrawable(favouriteState))
         favouriteIndicator.setOnClickListener { listener.onFavouriteClicked(cat, favouriteState) }
         favouriteIndicator.isEnabled = favouriteState == FavouriteState.FAVOURITE || favouriteState == FavouriteState.UN_FAVOURITE
         if (favouriteState == FavouriteState.PENDING_FAVOURITE || favouriteState == FavouriteState.PENDING_UN_FAVOURITE) {
             favouriteIndicator.setColorFilter(R.color.grey, PorterDuff.Mode.SRC_ATOP)
+        }
+
+        load(cat.image) {
+            cropAs { Crop.CIRCLE_CROP }
+            into { avatar }
+        }
+        setOnClickListener {
+            listener.onCatClicked(cat)
         }
     }
 
