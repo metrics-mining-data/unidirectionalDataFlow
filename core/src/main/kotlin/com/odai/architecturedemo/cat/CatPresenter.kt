@@ -4,6 +4,7 @@ import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cat.usecase.CatUseCase
 import com.odai.architecturedemo.cat.view.CatView
 import com.odai.architecturedemo.cats.CatsPresenter
+import com.odai.architecturedemo.event.DataObserver
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.EventObserver
 import com.odai.architecturedemo.loading.LoadingView
@@ -37,48 +38,38 @@ class CatPresenter(
         subscriptions = CompositeSubscription()
     }
 
-    private val catEventsObserver: Observer<Event<Cat>>
-        get() = object : EventObserver<Cat>() {
-            override fun onLoading(event: Event<Cat>) {
-                if (event.data != null) {
-                    loadingView.showLoadingIndicator()
-                } else {
-                    loadingView.showLoadingScreen()
-                }
-            }
-
-            override fun onIdle(event: Event<Cat>) {
-                if (event.data != null) {
-                    loadingView.showData()
-                } else {
-                    loadingView.showEmptyScreen()
-                }
-            }
-
-            override fun onError(event: Event<Cat>) {
-                if (event.data != null) {
-                    loadingView.showErrorIndicator()
-                } else {
-                    loadingView.showErrorScreen()
-                }
-            }
-
-        }
-
-    private val catObserver: Observer<Cat>
-        get() = object : Observer<Cat> {
-            override fun onNext(p0: Cat) {
-                catView.display(p0);
-            }
-
-            override fun onError(p0: Throwable?) {
-                throw UnsupportedOperationException("Error on cats pipeline. This should never happen", p0)
-            }
-
-            override fun onCompleted() {
-                throw UnsupportedOperationException("Completion on cats pipeline. This should never happen")
+    private val catEventsObserver = object : EventObserver<Cat>() {
+        override fun onLoading(event: Event<Cat>) {
+            if (event.data != null) {
+                loadingView.showLoadingIndicator()
+            } else {
+                loadingView.showLoadingScreen()
             }
         }
+
+        override fun onIdle(event: Event<Cat>) {
+            if (event.data != null) {
+                loadingView.showData()
+            } else {
+                loadingView.showEmptyScreen()
+            }
+        }
+
+        override fun onError(event: Event<Cat>) {
+            if (event.data != null) {
+                loadingView.showErrorIndicator()
+            } else {
+                loadingView.showErrorScreen()
+            }
+        }
+
+    }
+
+    private val catObserver = object : DataObserver<Cat> {
+        override fun onNext(p0: Cat) {
+            catView.display(p0);
+        }
+    }
 
     val retryListener = object : RetryClickedListener {
 

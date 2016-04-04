@@ -4,6 +4,7 @@ import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.cats.usecase.CatsUseCase
 import com.odai.architecturedemo.cats.view.CatsView
+import com.odai.architecturedemo.event.DataObserver
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.EventObserver
 import com.odai.architecturedemo.favourite.model.FavouriteCats
@@ -47,63 +48,44 @@ class CatsPresenter(
         subscriptions = CompositeSubscription()
     }
 
-    private val catsEventsObserver: Observer<Event<Cats>>
-        get() = object : EventObserver<Cats>() {
-            override fun onLoading(event: Event<Cats>) {
-                if (event.data != null) {
-                    loadingView.showLoadingIndicator()
-                } else {
-                    loadingView.showLoadingScreen()
-                }
-            }
-
-            override fun onIdle(event: Event<Cats>) {
-                if (event.data != null) {
-                    loadingView.showData()
-                } else {
-                    loadingView.showEmptyScreen()
-                }
-            }
-
-            override fun onError(event: Event<Cats>) {
-                if (event.data != null) {
-                    loadingView.showErrorIndicator()
-                } else {
-                    loadingView.showErrorScreen()
-                }
-            }
-
-        }
-
-    private val catsObserver: Observer<Cats>
-        get() = object : Observer<Cats> {
-            override fun onNext(p0: Cats) {
-                catsView.display(p0);
-            }
-
-            override fun onError(p0: Throwable?) {
-                throw UnsupportedOperationException("Error on cats pipeline. This should never happen", p0)
-            }
-
-            override fun onCompleted() {
-                throw UnsupportedOperationException("Completion on cats pipeline. This should never happen")
+    private val catsEventsObserver = object : EventObserver<Cats>() {
+        override fun onLoading(event: Event<Cats>) {
+            if (event.data != null) {
+                loadingView.showLoadingIndicator()
+            } else {
+                loadingView.showLoadingScreen()
             }
         }
 
-    private val favouriteCatsObserver: Observer<FavouriteCats>
-        get() = object : Observer<FavouriteCats> {
-            override fun onNext(p0: FavouriteCats) {
-                catsView.display(p0)
-            }
-
-            override fun onError(p0: Throwable?) {
-                throw UnsupportedOperationException("Error on favourite cats pipeline. This should never happen", p0)
-            }
-
-            override fun onCompleted() {
-                throw UnsupportedOperationException("Completion on favourite cats pipeline. This should never happen")
+        override fun onIdle(event: Event<Cats>) {
+            if (event.data != null) {
+                loadingView.showData()
+            } else {
+                loadingView.showEmptyScreen()
             }
         }
+
+        override fun onError(event: Event<Cats>) {
+            if (event.data != null) {
+                loadingView.showErrorIndicator()
+            } else {
+                loadingView.showErrorScreen()
+            }
+        }
+
+    }
+
+    private val catsObserver = object : DataObserver<Cats> {
+        override fun onNext(p0: Cats) {
+            catsView.display(p0);
+        }
+    }
+
+    private val favouriteCatsObserver = object : DataObserver<FavouriteCats> {
+        override fun onNext(p0: FavouriteCats) {
+            catsView.display(p0)
+        }
+    }
 
     interface CatClickedListener {
         fun onFavouriteClicked(cat: Cat, state: FavouriteState)
