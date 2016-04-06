@@ -1,4 +1,4 @@
-package com.odai.architecturedemo.cats.usecase
+package com.odai.architecturedemo.cats.service
 
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.favourite.model.FavouriteCats

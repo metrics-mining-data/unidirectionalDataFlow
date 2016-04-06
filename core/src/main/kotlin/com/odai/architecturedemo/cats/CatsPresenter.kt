@@ -2,14 +2,14 @@ package com.odai.architecturedemo.cats
 
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
-import com.odai.architecturedemo.cats.usecase.CatsUseCase
+import com.odai.architecturedemo.cats.service.CatsService
 import com.odai.architecturedemo.cats.view.CatsView
 import com.odai.architecturedemo.event.DataObserver
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.EventObserver
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
-import com.odai.architecturedemo.favourite.usecase.FavouriteCatsUseCase
+import com.odai.architecturedemo.favourite.service.FavouriteCatsService
 import com.odai.architecturedemo.loading.LoadingView
 import com.odai.architecturedemo.loading.RetryClickedListener
 import com.odai.architecturedemo.navigation.Navigator
@@ -17,8 +17,8 @@ import rx.Observer
 import rx.subscriptions.CompositeSubscription
 
 class CatsPresenter(
-        val catsUseCase: CatsUseCase,
-        val favouriteCatsUseCase: FavouriteCatsUseCase,
+        val catsService: CatsService,
+        val favouriteCatsService: FavouriteCatsService,
         val navigate: Navigator,
         val catsView: CatsView,
         val loadingView: LoadingView
@@ -30,15 +30,15 @@ class CatsPresenter(
         catsView.attach(catClickedListener)
         loadingView.attach(retryListener)
         subscriptions.add(
-                catsUseCase.getCatsEvents()
+                catsService.getCatsEvents()
                         .subscribe(catsEventsObserver)
         )
         subscriptions.add(
-                catsUseCase.getCats()
+                catsService.getCats()
                         .subscribe(catsObserver)
         )
         subscriptions.add(
-                favouriteCatsUseCase.getFavouriteCats()
+                favouriteCatsService.getFavouriteCats()
                         .subscribe(favouriteCatsObserver)
         )
     }
@@ -95,7 +95,7 @@ class CatsPresenter(
     val retryListener = object : RetryClickedListener {
 
         override fun onRetry() {
-            catsUseCase.refreshCats()
+            catsService.refreshCats()
         }
 
     }
@@ -108,9 +108,9 @@ class CatsPresenter(
 
         override fun onFavouriteClicked(cat: Cat, state: FavouriteState) {
             if (state == FavouriteState.FAVOURITE) {
-                favouriteCatsUseCase.removeFromFavourite(cat)
+                favouriteCatsService.removeFromFavourite(cat)
             } else if (state == FavouriteState.UN_FAVOURITE) {
-                favouriteCatsUseCase.addToFavourite(cat)
+                favouriteCatsService.addToFavourite(cat)
             }
         }
 

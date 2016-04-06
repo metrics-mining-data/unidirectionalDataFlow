@@ -1,7 +1,7 @@
 package com.odai.architecturedemo.cat
 
 import com.odai.architecturedemo.cat.model.Cat
-import com.odai.architecturedemo.cat.usecase.CatUseCase
+import com.odai.architecturedemo.cat.service.CatService
 import com.odai.architecturedemo.cat.view.CatView
 import com.odai.architecturedemo.cats.CatsPresenter
 import com.odai.architecturedemo.event.DataObserver
@@ -14,7 +14,7 @@ import rx.subscriptions.CompositeSubscription
 
 class CatPresenter(
         val id: Int,
-        val catUseCase: CatUseCase,
+        val catService: CatService,
         val catView: CatView,
         val loadingView: LoadingView
 ) {
@@ -24,11 +24,11 @@ class CatPresenter(
     fun startPresenting() {
         loadingView.attach(retryListener)
         subscriptions.add(
-                catUseCase.getCatEvents(id)
+                catService.getCatEvents(id)
                         .subscribe(catEventsObserver)
         )
         subscriptions.add(
-                catUseCase.getCat(id)
+                catService.getCat(id)
                         .subscribe(catObserver)
         )
     }
@@ -74,7 +74,7 @@ class CatPresenter(
     val retryListener = object : RetryClickedListener {
 
         override fun onRetry() {
-            catUseCase.refreshCat()
+            catService.refreshCat()
         }
 
     }

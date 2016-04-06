@@ -1,9 +1,9 @@
-package com.odai.architecturedemo.favourite.usecase
+package com.odai.architecturedemo.favourite.service
 
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
-import com.odai.architecturedemo.cats.usecase.CatsFreshnessChecker
+import com.odai.architecturedemo.cats.service.CatsFreshnessChecker
 import com.odai.architecturedemo.event.*
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
@@ -13,7 +13,7 @@ import rx.Observer
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 
-class PersistedFavouriteCatsUseCase(val api: CatApi, val repository: CatRepository, val freshnessChecker: CatsFreshnessChecker): FavouriteCatsUseCase {
+class PersistedFavouriteCatsService(val api: CatApi, val repository: CatRepository, val freshnessChecker: CatsFreshnessChecker): FavouriteCatsService {
 
     val favouriteCatsSubject: BehaviorSubject<Event<FavouriteCats>> = BehaviorSubject.create(Event<FavouriteCats>(Status.IDLE, null, null))
 

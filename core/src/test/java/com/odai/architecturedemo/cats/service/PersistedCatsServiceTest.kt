@@ -1,8 +1,11 @@
-package com.odai.architecturedemo.cats.usecase
+package com.odai.architecturedemo.cats.service
 
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
+import com.odai.architecturedemo.cats.service.CatsFreshnessChecker
+import com.odai.architecturedemo.cats.service.CatsService
+import com.odai.architecturedemo.cats.service.PersistedCatsService
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.Status
 import com.odai.architecturedemo.persistence.CatRepository
@@ -15,7 +18,7 @@ import rx.observers.TestObserver
 import rx.subjects.BehaviorSubject
 import java.net.URI
 
-class PersistedCatsUseCaseTest {
+class PersistedCatsServiceTest {
 
     var catApiSubject: BehaviorSubject<Cats> = BehaviorSubject.create()
     var catRepoSubject: BehaviorSubject<Cats> = BehaviorSubject.create()
@@ -24,12 +27,12 @@ class PersistedCatsUseCaseTest {
     var repository = mock(CatRepository::class.java)
     var freshnessChecker = mock(CatsFreshnessChecker::class.java)
 
-    var useCase: CatsUseCase = PersistedCatsUseCase(api, repository, freshnessChecker)
+    var service: CatsService = PersistedCatsService(api, repository, freshnessChecker)
 
     @Before
     fun setUp() {
-        setUpUseCase()
-        var useCase: CatsUseCase = PersistedCatsUseCase(api, repository, freshnessChecker)
+        setUpService()
+        service = PersistedCatsService(api, repository, freshnessChecker)
     }
 
     @Test
@@ -40,7 +43,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(cats))
     }
@@ -53,7 +56,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         verify(repository).saveCats(cats)
     }
@@ -69,7 +72,7 @@ class PersistedCatsUseCaseTest {
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(localCats)).thenReturn(true)
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(localCats))
     }
@@ -85,7 +88,7 @@ class PersistedCatsUseCaseTest {
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(localCats)).thenReturn(false)
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(localCats, remoteCats))
     }
@@ -101,7 +104,7 @@ class PersistedCatsUseCaseTest {
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(localCats)).thenReturn(false)
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         verify(repository).saveCats(remoteCats)
     }
@@ -115,7 +118,7 @@ class PersistedCatsUseCaseTest {
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(localCats)).thenReturn(false)
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(localCats))
     }
@@ -126,7 +129,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onError(Throwable())
         catRepoSubject.onCompleted()
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf())
     }
@@ -137,7 +140,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf())
     }
@@ -148,7 +151,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onCompleted()
         catRepoSubject.onError(Throwable())
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf())
     }
@@ -161,7 +164,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onCompleted()
         catRepoSubject.onError(Throwable())
 
-        useCase.getCats().subscribe(testObserver)
+        service.getCats().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf())
     }
@@ -174,7 +177,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
 
-        useCase.getCatsEvents().subscribe(testObserver)
+        service.getCatsEvents().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
@@ -194,7 +197,7 @@ class PersistedCatsUseCaseTest {
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(localCats)).thenReturn(true)
 
-        useCase.getCatsEvents().subscribe(testObserver)
+        service.getCatsEvents().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
@@ -214,7 +217,7 @@ class PersistedCatsUseCaseTest {
         catRepoSubject.onCompleted()
         `when`(freshnessChecker.isFresh(localCats)).thenReturn(false)
 
-        useCase.getCatsEvents().subscribe(testObserver)
+        service.getCatsEvents().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
@@ -231,7 +234,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onError(throwable)
         catRepoSubject.onCompleted()
 
-        useCase.getCatsEvents().subscribe(testObserver)
+        service.getCatsEvents().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
@@ -242,11 +245,10 @@ class PersistedCatsUseCaseTest {
     @Test
     fun given_TheRepoIsEmptyAndAPIIsEmpty_on_GetCatsEvents_it_ShouldReturnEmpty() {
         val testObserver = TestObserver<Event<Cats>>()
-        val throwable = Throwable()
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
 
-        useCase.getCatsEvents().subscribe(testObserver)
+        service.getCatsEvents().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
@@ -261,7 +263,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onCompleted()
         catRepoSubject.onError(throwable)
 
-        useCase.getCatsEvents().subscribe(testObserver)
+        service.getCatsEvents().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
@@ -278,7 +280,7 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onCompleted()
         catRepoSubject.onError(throwable)
 
-        useCase.getCatsEvents().subscribe(testObserver)
+        service.getCatsEvents().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
@@ -295,7 +297,7 @@ class PersistedCatsUseCaseTest {
         catRepoSubject.onNext(localCats)
         catRepoSubject.onCompleted()
 
-        useCase.getCatsEvents().subscribe(testObserver)
+        service.getCatsEvents().subscribe(testObserver)
 
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
@@ -312,12 +314,12 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
-        useCase.getCats().subscribe(testObserver)
-        setUpUseCase()
+        service.getCats().subscribe(testObserver)
+        setUpService()
         catApiSubject.onNext(catsRefreshed)
         catApiSubject.onCompleted()
 
-        useCase.refreshCats()
+        service.refreshCats()
 
         testObserver.assertReceivedOnNext(listOf(cats, catsRefreshed))
     }
@@ -329,12 +331,12 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
-        useCase.getCats().subscribe(testObserver)
-        setUpUseCase()
+        service.getCats().subscribe(testObserver)
+        setUpService()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
 
-        useCase.refreshCats()
+        service.refreshCats()
 
         testObserver.assertReceivedOnNext(listOf(cats))
     }
@@ -347,30 +349,30 @@ class PersistedCatsUseCaseTest {
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
-        useCase.getCats().subscribe(testObserver)
-        setUpUseCase()
+        service.getCats().subscribe(testObserver)
+        setUpService()
         catApiSubject.onNext(catsRefreshed)
         catApiSubject.onCompleted()
 
-        useCase.refreshCats()
+        service.refreshCats()
 
         verify(repository).saveCats(catsRefreshed)
     }
 
     @Test
-    fun given_useCaseHasAlreadySentData_on_RefreshCats_it_ShouldRestartLoading() {
+    fun given_ServiceHasAlreadySentData_on_RefreshCats_it_ShouldRestartLoading() {
         val cats = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create(""))))
         val catsRefreshed = Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")), Cat(424, "New", URI.create(""))))
         val testObserver = TestObserver<Event<Cats>>()
         catApiSubject.onNext(cats)
         catApiSubject.onCompleted()
         catRepoSubject.onCompleted()
-        useCase.getCatsEvents().subscribe(testObserver)
-        setUpUseCase()
+        service.getCatsEvents().subscribe(testObserver)
+        setUpService()
         catApiSubject.onNext(catsRefreshed)
         catApiSubject.onCompleted()
 
-        useCase.refreshCats()
+        service.refreshCats()
 
         testObserver.assertReceivedOnNext(listOf(
                 Event<Cats>(Status.LOADING, null, null),
@@ -382,7 +384,7 @@ class PersistedCatsUseCaseTest {
         ))
     }
 
-    private fun setUpUseCase() {
+    private fun setUpService() {
         catApiSubject = BehaviorSubject.create()
         catRepoSubject = BehaviorSubject.create()
         val catsApiReplay = catApiSubject.replay()

@@ -1,4 +1,4 @@
-package com.odai.architecturedemo.cats.usecase
+package com.odai.architecturedemo.cats.service
 
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.cats.model.Cats
@@ -7,7 +7,7 @@ import com.odai.architecturedemo.persistence.CatRepository
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
-class PersistedCatsUseCase(val api: CatApi, val repository: CatRepository, val catsFreshnessChecker: CatsFreshnessChecker) : CatsUseCase {
+class PersistedCatsService(val api: CatApi, val repository: CatRepository, val catsFreshnessChecker: CatsFreshnessChecker) : CatsService {
 
     val catsSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create(Event<Cats>(Status.IDLE, null, null))
 

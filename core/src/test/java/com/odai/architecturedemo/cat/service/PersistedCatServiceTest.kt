@@ -1,8 +1,10 @@
-package com.odai.architecturedemo.cat.usecase
+package com.odai.architecturedemo.cat.service
 
 import com.odai.architecturedemo.cat.model.Cat
+import com.odai.architecturedemo.cat.service.CatService
+import com.odai.architecturedemo.cat.service.PersistedCatService
 import com.odai.architecturedemo.cats.model.Cats
-import com.odai.architecturedemo.cats.usecase.CatsUseCase
+import com.odai.architecturedemo.cats.service.CatsService
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.Status
 import org.junit.Assert.*
@@ -14,66 +16,66 @@ import rx.subjects.BehaviorSubject
 import java.net.URI
 
 
-class PersistedCatUseCaseTest {
+class PersistedCatServiceTest {
 
     var catsEventSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create()
-    var catsUseCase: CatsUseCase = mock(CatsUseCase::class.java)
+    var catsService: CatsService = mock(CatsService::class.java)
 
-    var useCase: CatUseCase = PersistedCatUseCase(catsUseCase)
+    var service: CatService = PersistedCatService(catsService)
 
     @Before
     fun setUp() {
-        setUpUseCase()
+        setUpService()
     }
 
     @Test
-    fun given_aUseCase_on_refreshCats_it_ShouldCallRefreshCatsOnTheCatsUseCase() {
-        useCase.refreshCat()
+    fun given_aService_on_refreshCats_it_ShouldCallRefreshCatsOnTheCatsService() {
+        service.refreshCat()
 
-        verify(catsUseCase).refreshCats()
+        verify(catsService).refreshCats()
     }
 
     @Test
-    fun given_aUseCaseWithCats_on_getCatWithId_it_ShouldCallReturnCatForId() {
+    fun given_aServiceWithCats_on_getCatWithId_it_ShouldCallReturnCatForId() {
         catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")))), null))
 
-        val cat = useCase.getCat(24).toBlocking().first()
+        val cat = service.getCat(24).toBlocking().first()
 
         assertEquals(Cat(24, "Bar", URI.create("")), cat)
     }
 
     @Test
-    fun given_aUseCaseWithCats_on_getCatEvents_it_ShouldCallReturnCatForId() {
+    fun given_aServiceWithCats_on_getCatEvents_it_ShouldCallReturnCatForId() {
         catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")))), null))
 
-        val catEvent = useCase.getCatEvents(42).toBlocking().first()
+        val catEvent = service.getCatEvents(42).toBlocking().first()
 
         assertEquals(Cat(42, "Foo", URI.create("")), catEvent.data)
     }
 
     @Test
-    fun given_aUseCaseWithStatus_on_getCatEvents_it_ShouldCallReturnMatchingStatus() {
+    fun given_aServiceWithStatus_on_getCatEvents_it_ShouldCallReturnMatchingStatus() {
         catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")))), null))
 
-        val catEvent = useCase.getCatEvents(24).toBlocking().first()
+        val catEvent = service.getCatEvents(24).toBlocking().first()
 
         assertEquals(Status.IDLE, catEvent.status)
     }
 
     @Test
-    fun given_aUseCaseWithError_on_getCatEvents_it_ShouldCallReturnMatchingError() {
+    fun given_aServiceWithError_on_getCatEvents_it_ShouldCallReturnMatchingError() {
         var error = Throwable("Failed")
         catsEventSubject.onNext(Event(Status.ERROR, Cats(listOf(Cat(42, "Foo", URI.create("")), Cat(24, "Bar", URI.create("")))), error))
 
-        val catEvent = useCase.getCatEvents(24).toBlocking().first()
+        val catEvent = service.getCatEvents(24).toBlocking().first()
 
         assertEquals(Status.ERROR, catEvent.status)
         assertEquals(error, catEvent.error)
     }
 
-    private fun setUpUseCase() {
+    private fun setUpService() {
         catsEventSubject = BehaviorSubject.create()
-        `when`(catsUseCase.getCatsEvents()).thenReturn(catsEventSubject)
+        `when`(catsService.getCatsEvents()).thenReturn(catsEventSubject)
     }
 
 }

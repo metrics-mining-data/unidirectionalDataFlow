@@ -24,8 +24,8 @@ class CatsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cats)
         catsPresenter = CatsPresenter(
-                getCatApplication().catsUseCase,
-                getCatApplication().favouriteCatsUseCase,
+                getCatApplication().catsService,
+                getCatApplication().favouriteCatsService,
                 AndroidNavigator(this),
                 content,
                 loadingView

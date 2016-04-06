@@ -1,22 +1,23 @@
-package com.odai.architecturedemo.cats.usecase
+package com.odai.architecturedemo.cats.service
 
+import com.odai.architecturedemo.cats.service.CatsService
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
-class AsyncCatsUseCase(val catsUseCase: CatsUseCase) : CatsUseCase {
+class AsyncCatsService(val catsService: CatsService) : CatsService {
 
     override fun refreshCats() {
-        Observable.create<Unit> { catsUseCase.refreshCats() }
+        Observable.create<Unit> { catsService.refreshCats() }
                 .subscribeOn(Schedulers.io())
                 .subscribe()
     }
 
-    override fun getCatsEvents() = catsUseCase.getCatsEvents()
+    override fun getCatsEvents() = catsService.getCatsEvents()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 
-    override fun getCats() = catsUseCase.getCats()
+    override fun getCats() = catsService.getCats()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 

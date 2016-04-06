@@ -26,7 +26,7 @@ class CatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_cat)
         val id = intent.getIntExtra(AndroidNavigator.ID_EXTRA, -1)
         if(id == -1) throw IllegalArgumentException("Intent should contain the cat id")
-        catPresenter = CatPresenter(id, getCatApplication().catUseCase, content, loadingView)
+        catPresenter = CatPresenter(id, getCatApplication().catService, content, loadingView)
     }
 
     private fun getCatApplication(): CatApplication {

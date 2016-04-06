@@ -1,7 +1,7 @@
 package com.odai.architecturedemo.cat
 
 import com.odai.architecturedemo.cat.model.Cat
-import com.odai.architecturedemo.cat.usecase.CatUseCase
+import com.odai.architecturedemo.cat.service.CatService
 import com.odai.architecturedemo.cat.view.CatView
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.Status
@@ -20,22 +20,22 @@ class CatPresenterTest {
 
     var catSubject: BehaviorSubject<Cat> = BehaviorSubject.create()
     var catEventSubject: BehaviorSubject<Event<Cat>> = BehaviorSubject.create()
-    var useCase: CatUseCase = mock(CatUseCase::class.java)
+    var service: CatService = mock(CatService::class.java)
 
     var view: CatView = mock(CatView::class.java)
     var loadingView: LoadingView = mock(LoadingView::class.java)
 
-    var presenter = CatPresenter(42, useCase, view, loadingView)
+    var presenter = CatPresenter(42, service, view, loadingView)
 
     @Before
     fun setUp() {
-        setUpUseCase()
-        presenter = CatPresenter(42, useCase, view, loadingView)
+        setUpService()
+        presenter = CatPresenter(42, service, view, loadingView)
     }
 
     @After
     fun tearDown() {
-        reset(view, loadingView, useCase)
+        reset(view, loadingView, service)
     }
 
     @Test
@@ -102,12 +102,12 @@ class CatPresenterTest {
     }
 
     @Test
-    fun given_ThePresenterIsPresenting_on_RetryClicked_it_ShouldRefreshTheUseCase() {
+    fun given_ThePresenterIsPresenting_on_RetryClicked_it_ShouldRefreshTheService() {
         givenThePresenterIsPresenting()
 
         presenter.retryListener.onRetry()
 
-        verify(useCase).refreshCat()
+        verify(service).refreshCat()
     }
 
     @Test
@@ -186,11 +186,11 @@ class CatPresenterTest {
         presenter.stopPresenting()
     }
 
-    private fun setUpUseCase() {
+    private fun setUpService() {
         catSubject = BehaviorSubject.create()
         catEventSubject = BehaviorSubject.create()
-        `when`(useCase.getCat(Mockito.anyInt())).thenReturn(catSubject)
-        `when`(useCase.getCatEvents(Mockito.anyInt())).thenReturn(catEventSubject)
+        `when`(service.getCat(Mockito.anyInt())).thenReturn(catSubject)
+        `when`(service.getCatEvents(Mockito.anyInt())).thenReturn(catEventSubject)
     }
 }
 

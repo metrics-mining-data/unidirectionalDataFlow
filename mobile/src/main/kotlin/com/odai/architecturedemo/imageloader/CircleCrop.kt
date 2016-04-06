@@ -10,9 +10,6 @@ class CircleCrop(context: Context) : BitmapTransformation(context) {
     val paint = Paint()
 
     override fun transform(pool: BitmapPool, toTransform: Bitmap, outWidth: Int, outHeight: Int): Bitmap {
-        val width = toTransform.width;
-        val height = toTransform.height;
-
         var bitmap = pool.get(outWidth, outHeight, Bitmap.Config.ARGB_8888);
         if (bitmap == null) {
             bitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888);

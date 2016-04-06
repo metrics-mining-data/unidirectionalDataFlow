@@ -1,19 +1,19 @@
-package com.odai.architecturedemo.cat.usecase
+package com.odai.architecturedemo.cat.service
 
 import com.odai.architecturedemo.cat.model.Cat
-import com.odai.architecturedemo.cats.usecase.CatsUseCase
+import com.odai.architecturedemo.cats.service.CatsService
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.asData
 import rx.Observable
 
-class PersistedCatUseCase(val catsUseCase: CatsUseCase) : CatUseCase {
+class PersistedCatService(val catsService: CatsService) : CatService {
 
     override fun refreshCat() {
-        catsUseCase.refreshCats()
+        catsService.refreshCats()
     }
 
     override fun getCatEvents(id: Int): Observable<Event<Cat>> {
-        return catsUseCase.getCatsEvents().map {
+        return catsService.getCatsEvents().map {
             Event<Cat>(it.status, it?.data?.list?.first { it.id == id }, it.error)
         }
     }

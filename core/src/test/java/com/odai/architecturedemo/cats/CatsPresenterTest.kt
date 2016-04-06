@@ -2,13 +2,13 @@ package com.odai.architecturedemo.cats
 
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
-import com.odai.architecturedemo.cats.usecase.CatsUseCase
+import com.odai.architecturedemo.cats.service.CatsService
 import com.odai.architecturedemo.cats.view.CatsView
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.Status
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
-import com.odai.architecturedemo.favourite.usecase.FavouriteCatsUseCase
+import com.odai.architecturedemo.favourite.service.FavouriteCatsService
 import com.odai.architecturedemo.loading.LoadingView
 import com.odai.architecturedemo.navigation.Navigator
 import org.junit.After
@@ -24,27 +24,27 @@ class CatsPresenterTest {
 
     var catsSubject: BehaviorSubject<Cats> = BehaviorSubject.create()
     var catsEventSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create()
-    var useCase: CatsUseCase = mock(CatsUseCase::class.java)
+    var service: CatsService = mock(CatsService::class.java)
 
     var favouriteCatsSubject: BehaviorSubject<FavouriteCats> = BehaviorSubject.create()
-    var favouriteUseCase: FavouriteCatsUseCase = mock(FavouriteCatsUseCase::class.java)
+    var favouriteService: FavouriteCatsService = mock(FavouriteCatsService::class.java)
 
     var view: CatsView = mock(CatsView::class.java)
     var loadingView: LoadingView = mock(LoadingView::class.java)
 
     var navigator: Navigator = mock(Navigator::class.java)
 
-    var presenter = CatsPresenter(useCase, favouriteUseCase, navigator, view, loadingView)
+    var presenter = CatsPresenter(service, favouriteService, navigator, view, loadingView)
 
     @Before
     fun setUp() {
-        setUpUseCase()
-        presenter = CatsPresenter(useCase, favouriteUseCase, navigator, view, loadingView)
+        setUpService()
+        presenter = CatsPresenter(service, favouriteService, navigator, view, loadingView)
     }
 
     @After
     fun tearDown() {
-        reset(view, loadingView, useCase, favouriteUseCase)
+        reset(view, loadingView, service, favouriteService)
     }
 
     @Test
@@ -121,12 +121,12 @@ class CatsPresenterTest {
     }
 
     @Test
-    fun given_ThePresenterIsPresenting_on_RetryClicked_it_ShouldRefreshTheUseCase() {
+    fun given_ThePresenterIsPresenting_on_RetryClicked_it_ShouldRefreshTheService() {
         givenThePresenterIsPresenting()
 
         presenter.retryListener.onRetry()
 
-        verify(useCase).refreshCats()
+        verify(service).refreshCats()
     }
 
     @Test
@@ -244,7 +244,7 @@ class CatsPresenterTest {
 
         presenter.catClickedListener.onFavouriteClicked(Cat(42, "NewCat", URI.create("")), FavouriteState.FAVOURITE)
 
-        verify(favouriteUseCase).removeFromFavourite(Cat(42, "NewCat", URI.create("")))
+        verify(favouriteService).removeFromFavourite(Cat(42, "NewCat", URI.create("")))
     }
 
     @Test
@@ -253,7 +253,7 @@ class CatsPresenterTest {
 
         presenter.catClickedListener.onFavouriteClicked(Cat(42, "NewCat", URI.create("")), FavouriteState.UN_FAVOURITE)
 
-        verify(favouriteUseCase).addToFavourite(Cat(42, "NewCat", URI.create("")))
+        verify(favouriteService).addToFavourite(Cat(42, "NewCat", URI.create("")))
     }
 
     @Test
@@ -262,7 +262,7 @@ class CatsPresenterTest {
 
         presenter.catClickedListener.onFavouriteClicked(Cat(42, "NewCat", URI.create("")), FavouriteState.PENDING_FAVOURITE)
 
-        verifyZeroInteractions(favouriteUseCase)
+        verifyZeroInteractions(favouriteService)
     }
 
     @Test
@@ -271,12 +271,12 @@ class CatsPresenterTest {
 
         presenter.catClickedListener.onFavouriteClicked(Cat(42, "NewCat", URI.create("")), FavouriteState.PENDING_UN_FAVOURITE)
 
-        verifyZeroInteractions(favouriteUseCase)
+        verifyZeroInteractions(favouriteService)
     }
 
     private fun givenThePresenterIsPresenting() {
         presenter.startPresenting()
-        reset(useCase, favouriteUseCase)
+        reset(service, favouriteService)
     }
 
     private fun givenThePresenterIsNotPresenting() {
@@ -288,13 +288,13 @@ class CatsPresenterTest {
         presenter.stopPresenting()
     }
 
-    private fun setUpUseCase() {
+    private fun setUpService() {
         catsSubject = BehaviorSubject.create()
         catsEventSubject = BehaviorSubject.create()
         favouriteCatsSubject = BehaviorSubject.create()
-        `when`(useCase.getCats()).thenReturn(catsSubject)
-        `when`(useCase.getCatsEvents()).thenReturn(catsEventSubject)
-        `when`(favouriteUseCase.getFavouriteCats()).thenReturn(favouriteCatsSubject)
+        `when`(service.getCats()).thenReturn(catsSubject)
+        `when`(service.getCatsEvents()).thenReturn(catsEventSubject)
+        `when`(favouriteService.getFavouriteCats()).thenReturn(favouriteCatsSubject)
     }
 }
 

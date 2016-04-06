@@ -1,10 +1,10 @@
-package com.odai.architecturedemo.cat.usecase
+package com.odai.architecturedemo.cat.service
 
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.event.Event
 import rx.Observable
 
-interface CatUseCase {
+interface CatService {
 
     fun getCatEvents(id: Int): Observable<Event<Cat>>
 
