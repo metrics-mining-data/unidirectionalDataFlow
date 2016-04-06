@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 class FakeCatsApi : CatApi {
 
-    var favouriteCats = Cats(listOf())
+    private var favouriteCats = Cats(listOf())
 
     override fun getFavouriteCats(): Observable<Cats> {
         return Observable.just(favouriteCats).delay(2, TimeUnit.SECONDS, Schedulers.immediate()).first()

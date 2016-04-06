@@ -5,7 +5,7 @@ import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
-class AsyncCatService(val catService: CatService) : CatService {
+class AsyncCatService(private val catService: CatService) : CatService {
 
     override fun refreshCat() {
         Observable.create<Unit> { catService.refreshCat() }

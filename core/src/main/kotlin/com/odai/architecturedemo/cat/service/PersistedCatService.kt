@@ -6,7 +6,7 @@ import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.asData
 import rx.Observable
 
-class PersistedCatService(val catsService: CatsService) : CatService {
+class PersistedCatService(private val catsService: CatsService) : CatService {
 
     override fun refreshCat() {
         catsService.refreshCats()
@@ -14,7 +14,7 @@ class PersistedCatService(val catsService: CatsService) : CatService {
 
     override fun getCatEvents(id: Int): Observable<Event<Cat>> {
         return catsService.getCatsEvents().map {
-            Event<Cat>(it.status, it?.data?.list?.first { it.id == id }, it.error)
+            Event<Cat>(it.status, it?.data?.first { it.id == id }, it.error)
         }
     }
 

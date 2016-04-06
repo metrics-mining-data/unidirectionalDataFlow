@@ -17,14 +17,14 @@ import rx.Observer
 import rx.subscriptions.CompositeSubscription
 
 class CatsPresenter(
-        val catsService: CatsService,
-        val favouriteCatsService: FavouriteCatsService,
-        val navigate: Navigator,
-        val catsView: CatsView,
-        val loadingView: LoadingView
+        private val catsService: CatsService,
+        private val favouriteCatsService: FavouriteCatsService,
+        private val navigate: Navigator,
+        private val catsView: CatsView,
+        private val loadingView: LoadingView
 ) {
 
-    var subscriptions = CompositeSubscription()
+    private var subscriptions = CompositeSubscription()
 
     fun startPresenting() {
         catsView.attach(catClickedListener)

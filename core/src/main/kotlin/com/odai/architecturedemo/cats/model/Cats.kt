@@ -2,7 +2,7 @@ package com.odai.architecturedemo.cats.model
 
 import com.odai.architecturedemo.cat.model.Cat
 
-data class Cats (val list: List<Cat>) {
+data class Cats (private val list: List<Cat>) {
 
     fun size(): Int {
         return list.size;
@@ -27,5 +27,9 @@ data class Cats (val list: List<Cat>) {
     fun isEmpty(): Boolean {
         return list.isEmpty();
     }
+
+    fun <R> fold(initial: R, operation: (R, Cat) -> R): R = list.fold(initial, operation)
+
+    fun first(predicate: (Cat) -> Boolean): Cat? = list.first(predicate);
 
 };

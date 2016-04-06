@@ -13,13 +13,13 @@ import rx.Observer
 import rx.subscriptions.CompositeSubscription
 
 class CatPresenter(
-        val id: Int,
-        val catService: CatService,
-        val catView: CatView,
-        val loadingView: LoadingView
+        private val id: Int,
+        private val catService: CatService,
+        private val catView: CatView,
+        private val loadingView: LoadingView
 ) {
 
-    var subscriptions = CompositeSubscription()
+    private var subscriptions = CompositeSubscription()
 
     fun startPresenting() {
         loadingView.attach(retryListener)

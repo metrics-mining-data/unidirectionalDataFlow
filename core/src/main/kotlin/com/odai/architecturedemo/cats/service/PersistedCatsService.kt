@@ -7,9 +7,13 @@ import com.odai.architecturedemo.persistence.CatRepository
 import rx.Observable
 import rx.subjects.BehaviorSubject
 
-class PersistedCatsService(val api: CatApi, val repository: CatRepository, val catsFreshnessChecker: CatsFreshnessChecker) : CatsService {
+class PersistedCatsService(
+        private val api: CatApi,
+        private val repository: CatRepository,
+        private val catsFreshnessChecker: CatsFreshnessChecker
+) : CatsService {
 
-    val catsSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create(Event<Cats>(Status.IDLE, null, null))
+    private val catsSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create(Event<Cats>(Status.IDLE, null, null))
 
     override fun getCatsEvents(): Observable<Event<Cats>> {
         return catsSubject.asObservable()

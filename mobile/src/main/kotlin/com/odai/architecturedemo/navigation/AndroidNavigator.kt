@@ -5,7 +5,7 @@ import android.content.Intent
 import com.odai.architecturedemo.cat.CatActivity
 import com.odai.architecturedemo.cat.model.Cat
 
-class AndroidNavigator(val activity: Activity): Navigator {
+class AndroidNavigator(private val activity: Activity): Navigator {
 
     companion object {
         val ID_EXTRA: String = "TODO_CHANGE_AS_URI_NAVIGATION"

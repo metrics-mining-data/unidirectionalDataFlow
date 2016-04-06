@@ -6,7 +6,7 @@ import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
-class AsyncFavouriteCatsService(val favouriteCatsService: FavouriteCatsService) : FavouriteCatsService {
+class AsyncFavouriteCatsService(private val favouriteCatsService: FavouriteCatsService) : FavouriteCatsService {
 
     override fun getFavouriteCatsEvents() = favouriteCatsService.getFavouriteCatsEvents()
             .subscribeOn(Schedulers.io())

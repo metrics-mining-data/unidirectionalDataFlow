@@ -13,9 +13,13 @@ import rx.Observer
 import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 
-class PersistedFavouriteCatsService(val api: CatApi, val repository: CatRepository, val freshnessChecker: CatsFreshnessChecker): FavouriteCatsService {
+class PersistedFavouriteCatsService(
+        private val api: CatApi,
+        private val repository: CatRepository,
+        private val freshnessChecker: CatsFreshnessChecker
+) : FavouriteCatsService {
 
-    val favouriteCatsSubject: BehaviorSubject<Event<FavouriteCats>> = BehaviorSubject.create(Event<FavouriteCats>(Status.IDLE, null, null))
+    private val favouriteCatsSubject: BehaviorSubject<Event<FavouriteCats>> = BehaviorSubject.create(Event<FavouriteCats>(Status.IDLE, null, null))
 
     override fun getFavouriteCatsEvents(): Observable<Event<FavouriteCats>> {
         return favouriteCatsSubject.asObservable()
@@ -52,7 +56,7 @@ class PersistedFavouriteCatsService(val api: CatApi, val repository: CatReposito
 
     private fun asFavouriteCats(it: Cats): FavouriteCats {
         return FavouriteCats(
-                it.list.fold(mapOf<Cat, FavouriteState>()) { map, cat ->
+                it.fold(mapOf<Cat, FavouriteState>()) { map, cat ->
                     map.plus(Pair(cat, FavouriteState.FAVOURITE))
                 }
         )
@@ -76,7 +80,7 @@ class PersistedFavouriteCatsService(val api: CatApi, val repository: CatReposito
                 .subscribe(favouriteCatStateObserver)
     }
 
-    val favouriteCatStateObserver = object : Observer<Pair<Cat, FavouriteState>> {
+    private val favouriteCatStateObserver = object : Observer<Pair<Cat, FavouriteState>> {
 
         override fun onNext(p0: Pair<Cat, FavouriteState>) {
             val value = favouriteCatsSubject.value
