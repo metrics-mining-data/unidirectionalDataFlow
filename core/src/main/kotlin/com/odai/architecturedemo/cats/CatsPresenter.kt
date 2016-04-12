@@ -13,7 +13,6 @@ import com.odai.architecturedemo.favourite.service.FavouriteCatsService
 import com.odai.architecturedemo.loading.LoadingView
 import com.odai.architecturedemo.loading.RetryClickedListener
 import com.odai.architecturedemo.navigation.Navigator
-import rx.Observer
 import rx.subscriptions.CompositeSubscription
 
 class CatsPresenter(
