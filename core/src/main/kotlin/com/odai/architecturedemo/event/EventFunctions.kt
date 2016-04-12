@@ -1,8 +1,8 @@
 package com.odai.architecturedemo.event
 
+import com.jakewharton.rxrelay.BehaviorRelay
 import rx.Notification
 import rx.Observable
-import rx.subjects.BehaviorSubject
 
 fun <T> asEvent() = Observable.Transformer<T, Event<T>> { p0 ->
     p0.materialize()
@@ -22,4 +22,4 @@ fun <T> asData() = Observable.Transformer<Event<T>, T> { p0 ->
             .distinctUntilChanged()
 }
 
-fun <T> isInitialised(subject: BehaviorSubject<Event<T>>) = subject.value.data != null || subject.value.status == Status.LOADING
+fun <T> isInitialised(subject: BehaviorRelay<Event<T>>) = subject.value.data != null || subject.value.status == Status.LOADING

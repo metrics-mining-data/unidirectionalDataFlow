@@ -1,5 +1,6 @@
 package com.odai.architecturedemo.favourite.service
 
+import com.jakewharton.rxrelay.BehaviorRelay
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
@@ -10,8 +11,6 @@ import com.odai.architecturedemo.favourite.model.FavouriteState
 import com.odai.architecturedemo.persistence.CatRepository
 import rx.Observable
 import rx.Observer
-import rx.schedulers.Schedulers
-import rx.subjects.BehaviorSubject
 
 class PersistedFavouriteCatsService(
         private val api: CatApi,
@@ -19,10 +18,10 @@ class PersistedFavouriteCatsService(
         private val freshnessChecker: CatsFreshnessChecker
 ) : FavouriteCatsService {
 
-    private val favouriteCatsSubject: BehaviorSubject<Event<FavouriteCats>> = BehaviorSubject.create(Event<FavouriteCats>(Status.IDLE, null, null))
+    private val favouriteCatsRelay: BehaviorRelay<Event<FavouriteCats>> = BehaviorRelay.create(Event<FavouriteCats>(Status.IDLE, null, null))
 
     override fun getFavouriteCatsEvents(): Observable<Event<FavouriteCats>> {
-        return favouriteCatsSubject.asObservable()
+        return favouriteCatsRelay.asObservable()
                 .startWith(initialiseSubject())
                 .distinctUntilChanged()
     }
@@ -30,14 +29,14 @@ class PersistedFavouriteCatsService(
     override fun getFavouriteCats() = getFavouriteCatsEvents().compose(asData())
 
     private fun initialiseSubject(): Observable<Event<FavouriteCats>> {
-        if (isInitialised(favouriteCatsSubject)) {
+        if (isInitialised(favouriteCatsRelay)) {
             return Observable.empty()
         }
         return repository.readFavouriteCats()
                 .flatMap { updateFromRemoteIfOutdated(it) }
                 .switchIfEmpty(fetchRemoteFavouriteCats())
                 .compose(asEvent<FavouriteCats>())
-                .doOnNext { favouriteCatsSubject.onNext(it) }
+                .doOnNext { favouriteCatsRelay.call(it) }
     }
 
     private fun updateFromRemoteIfOutdated(it: FavouriteCats): Observable<FavouriteCats>? {
@@ -83,9 +82,9 @@ class PersistedFavouriteCatsService(
     private val favouriteCatStateObserver = object : Observer<Pair<Cat, FavouriteState>> {
 
         override fun onNext(p0: Pair<Cat, FavouriteState>) {
-            val value = favouriteCatsSubject.value
+            val value = favouriteCatsRelay.value
             val favouriteCats = value.data ?: FavouriteCats(mapOf())
-            favouriteCatsSubject.onNext(Event(value.status, favouriteCats.put(p0), value.error))
+            favouriteCatsRelay.call(Event(value.status, favouriteCats.put(p0), value.error))
         }
 
         override fun onError(p0: Throwable?) {

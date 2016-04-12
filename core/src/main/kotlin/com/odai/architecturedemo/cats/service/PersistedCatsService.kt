@@ -1,11 +1,11 @@
 package com.odai.architecturedemo.cats.service
 
+import com.jakewharton.rxrelay.BehaviorRelay
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.event.*
 import com.odai.architecturedemo.persistence.CatRepository
 import rx.Observable
-import rx.subjects.BehaviorSubject
 
 class PersistedCatsService(
         private val api: CatApi,
@@ -13,10 +13,10 @@ class PersistedCatsService(
         private val catsFreshnessChecker: CatsFreshnessChecker
 ) : CatsService {
 
-    private val catsSubject: BehaviorSubject<Event<Cats>> = BehaviorSubject.create(Event<Cats>(Status.IDLE, null, null))
+    private val catsRelay: BehaviorRelay<Event<Cats>> = BehaviorRelay.create(Event<Cats>(Status.IDLE, null, null))
 
     override fun getCatsEvents(): Observable<Event<Cats>> {
-        return catsSubject.asObservable()
+        return catsRelay.asObservable()
                 .startWith(initialiseSubject())
                 .distinctUntilChanged()
     }
@@ -26,18 +26,18 @@ class PersistedCatsService(
     override fun refreshCats() {
         fetchRemoteCats()
                 .compose(asEvent<Cats>())
-                .subscribe { catsSubject.onNext(it) }
+                .subscribe { catsRelay.call(it) }
     }
 
     private fun initialiseSubject(): Observable<Event<Cats>> {
-        if (isInitialised(catsSubject)) {
+        if (isInitialised(catsRelay)) {
             return Observable.empty()
         }
         return repository.readCats()
                 .flatMap { updateFromRemoteIfOutdated(it) }
                 .switchIfEmpty(fetchRemoteCats())
                 .compose(asEvent<Cats>())
-                .doOnNext { catsSubject.onNext(it) }
+                .doOnNext { catsRelay.call(it) }
     }
 
     private fun updateFromRemoteIfOutdated(it: Cats): Observable<Cats> {
