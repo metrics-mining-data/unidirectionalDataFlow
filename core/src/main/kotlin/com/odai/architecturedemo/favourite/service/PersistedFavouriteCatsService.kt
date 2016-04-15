@@ -6,8 +6,10 @@ import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.cats.service.CatsFreshnessChecker
 import com.odai.architecturedemo.event.*
+import com.odai.architecturedemo.favourite.model.ActionState
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
+import com.odai.architecturedemo.favourite.model.FavouriteStatus
 import com.odai.architecturedemo.persistence.CatRepository
 import rx.Observable
 import rx.Observer
@@ -56,25 +58,25 @@ class PersistedFavouriteCatsService(
     private fun asFavouriteCats(it: Cats): FavouriteCats {
         return FavouriteCats(
                 it.fold(mapOf<Cat, FavouriteState>()) { map, cat ->
-                    map.plus(Pair(cat, FavouriteState.FAVOURITE))
+                    map.plus(Pair(cat, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
                 }
         )
     }
 
     override fun addToFavourite(cat: Cat) {
         api.addToFavourite(cat)
-                .map { Pair(cat, FavouriteState.FAVOURITE) }
-                .onErrorReturn { Pair(cat, FavouriteState.UN_FAVOURITE) }
-                .startWith(Pair(cat, FavouriteState.PENDING_FAVOURITE))
+                .map { Pair(cat, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)) }
+                .onErrorReturn { Pair(cat, FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.CONFIRMED)) }
+                .startWith(Pair(cat, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.PENDING)))
                 .doOnNext { repository.saveCatFavoriteStatus(it) }
                 .subscribe(favouriteCatStateObserver)
     }
 
     override fun removeFromFavourite(cat: Cat) {
         api.removeFromFavourite(cat)
-                .map { Pair(cat, FavouriteState.UN_FAVOURITE) }
-                .onErrorReturn { Pair(cat, FavouriteState.FAVOURITE) }
-                .startWith(Pair(cat, FavouriteState.PENDING_UN_FAVOURITE))
+                .map { Pair(cat, FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.CONFIRMED)) }
+                .onErrorReturn { Pair(cat, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)) }
+                .startWith(Pair(cat, FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.PENDING)))
                 .doOnNext { repository.saveCatFavoriteStatus(it) }
                 .subscribe(favouriteCatStateObserver)
     }

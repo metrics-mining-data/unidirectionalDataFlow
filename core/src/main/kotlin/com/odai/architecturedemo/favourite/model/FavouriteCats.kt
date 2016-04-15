@@ -1,7 +1,6 @@
 package com.odai.architecturedemo.favourite.model
 
 import com.odai.architecturedemo.cat.model.Cat
-import com.odai.architecturedemo.favourite.model.FavouriteState
 
 data class FavouriteCats(val favourites: Map<Cat, FavouriteState>) {
 
@@ -17,7 +16,7 @@ data class FavouriteCats(val favourites: Map<Cat, FavouriteState>) {
         if (favourites.containsKey(cat)) {
             return favourites[cat]!!
         } else {
-            return FavouriteState.UN_FAVOURITE
+            return FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.CONFIRMED)
         }
     }
 }

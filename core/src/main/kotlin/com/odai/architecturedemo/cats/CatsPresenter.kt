@@ -7,8 +7,10 @@ import com.odai.architecturedemo.cats.view.CatsView
 import com.odai.architecturedemo.event.DataObserver
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.EventObserver
+import com.odai.architecturedemo.favourite.model.ActionState
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
+import com.odai.architecturedemo.favourite.model.FavouriteStatus
 import com.odai.architecturedemo.favourite.service.FavouriteCatsService
 import com.odai.architecturedemo.loading.LoadingView
 import com.odai.architecturedemo.loading.RetryClickedListener
@@ -106,9 +108,12 @@ class CatsPresenter(
         }
 
         override fun onFavouriteClicked(cat: Cat, state: FavouriteState) {
-            if (state == FavouriteState.FAVOURITE) {
+            if(state.state != ActionState.CONFIRMED) {
+                return
+            }
+            if (state.status == FavouriteStatus.FAVOURITE) {
                 favouriteCatsService.removeFromFavourite(cat)
-            } else if (state == FavouriteState.UN_FAVOURITE) {
+            } else if (state.status == FavouriteStatus.UN_FAVOURITE) {
                 favouriteCatsService.addToFavourite(cat)
             }
         }

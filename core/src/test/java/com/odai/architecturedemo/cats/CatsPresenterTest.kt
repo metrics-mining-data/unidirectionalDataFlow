@@ -6,8 +6,10 @@ import com.odai.architecturedemo.cats.service.CatsService
 import com.odai.architecturedemo.cats.view.CatsView
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.Status
+import com.odai.architecturedemo.favourite.model.ActionState
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
+import com.odai.architecturedemo.favourite.model.FavouriteStatus
 import com.odai.architecturedemo.favourite.service.FavouriteCatsService
 import com.odai.architecturedemo.loading.LoadingView
 import com.odai.architecturedemo.navigation.Navigator
@@ -60,7 +62,9 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_EmissionOfNewFavouritesCats_it_ShouldPresentTheCatsToTheView() {
         givenThePresenterIsPresenting()
 
-        val favouriteCats = FavouriteCats(mapOf(Pair(Cat(42, "NewCat", URI.create("")), FavouriteState.FAVOURITE)))
+        val favouriteCats = FavouriteCats(
+                mapOf(Pair(Cat(42, "NewCat", URI.create("")), FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
+        )
         favouriteCatsSubject.onNext(favouriteCats)
 
         verify(view).display(favouriteCats)
@@ -142,7 +146,9 @@ class CatsPresenterTest {
     fun given_ThePresenterStoppedPresenting_on_EmissionOfNewFavouritesCats_it_ShouldNotPresentTheCatsToTheView() {
         givenThePresenterStoppedPresenting()
 
-        val favouriteCats = FavouriteCats(mapOf(Pair(Cat(42, "NewCat", URI.create("")), FavouriteState.FAVOURITE)))
+        val favouriteCats = FavouriteCats(
+                mapOf(Pair(Cat(42, "NewCat", URI.create("")), FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
+        )
         favouriteCatsSubject.onNext(favouriteCats)
 
         verifyZeroInteractions(view)
@@ -242,7 +248,10 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_FavouriteClickedForFavouriteCat_it_ShouldRemoveCatFromFavourites() {
         givenThePresenterIsPresenting()
 
-        presenter.catClickedListener.onFavouriteClicked(Cat(42, "NewCat", URI.create("")), FavouriteState.FAVOURITE)
+        presenter.catClickedListener.onFavouriteClicked(
+                Cat(42, "NewCat", URI.create("")),
+                FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)
+        )
 
         verify(favouriteService).removeFromFavourite(Cat(42, "NewCat", URI.create("")))
     }
@@ -251,7 +260,10 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_FavouriteClickedForUnFavouriteCat_it_ShouldAddCatToFavourites() {
         givenThePresenterIsPresenting()
 
-        presenter.catClickedListener.onFavouriteClicked(Cat(42, "NewCat", URI.create("")), FavouriteState.UN_FAVOURITE)
+        presenter.catClickedListener.onFavouriteClicked(
+                Cat(42, "NewCat", URI.create("")),
+                FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.CONFIRMED)
+        )
 
         verify(favouriteService).addToFavourite(Cat(42, "NewCat", URI.create("")))
     }
@@ -260,7 +272,10 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_FavouriteClickedForPendingFavouriteCat_it_ShouldDoNothing() {
         givenThePresenterIsPresenting()
 
-        presenter.catClickedListener.onFavouriteClicked(Cat(42, "NewCat", URI.create("")), FavouriteState.PENDING_FAVOURITE)
+        presenter.catClickedListener.onFavouriteClicked(
+                Cat(42, "NewCat", URI.create("")),
+                FavouriteState(FavouriteStatus.FAVOURITE, ActionState.PENDING)
+        )
 
         verifyZeroInteractions(favouriteService)
     }
@@ -269,7 +284,10 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_FavouriteClickedForPendingUnFavouriteCat_it_ShouldDoNothing() {
         givenThePresenterIsPresenting()
 
-        presenter.catClickedListener.onFavouriteClicked(Cat(42, "NewCat", URI.create("")), FavouriteState.PENDING_UN_FAVOURITE)
+        presenter.catClickedListener.onFavouriteClicked(
+                Cat(42, "NewCat", URI.create("")),
+                FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.PENDING)
+        )
 
         verifyZeroInteractions(favouriteService)
     }
