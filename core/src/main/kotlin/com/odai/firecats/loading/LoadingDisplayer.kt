@@ -1,8 +1,8 @@
 package com.odai.firecats.loading
 
-interface LoadingView {
+interface LoadingDisplayer {
 
-    fun attach(retryListener: RetryClickedListener)
+    fun attach(retryListener: LoadingActionListener)
 
     fun showLoadingIndicator()
 
@@ -15,6 +15,10 @@ interface LoadingView {
     fun showErrorIndicator()
 
     fun showErrorScreen()
+
+    interface LoadingActionListener {
+        fun onRetry()
+    }
 
 
 }

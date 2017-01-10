@@ -1,3 +1,8 @@
 <resources>
   <string name="app_name">FireCats</string>
+  <string name="login_anonymously">Login as anonymous user</string>
+  <string name="login_disclaimer">This application is for demo purposes only.
+    When using the Google login, Novoda developers can see any information provided by that login.
+    If you don\'t want to share your name and profile picture please use the anonymous login.
+    The database can be erased at any time.</string>
 </resources>

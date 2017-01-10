@@ -3,15 +3,14 @@ package com.odai.firecats.cats.view
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
 import com.odai.firecats.R
-import com.odai.firecats.cats.CatsPresenter
+import com.odai.firecats.cats.displayer.CatsDisplayer
 import com.odai.firecats.cats.model.Cats
 import com.odai.firecats.favourite.model.FavouriteCats
 
 class CatsAdapter(
         private val layoutInflater: LayoutInflater,
-        private val listener: CatsPresenter.CatClickedListener,
+        private val listener: CatsDisplayer.CatsActionListener,
         var cats: Cats,
         var favouriteCats: FavouriteCats
 ) : RecyclerView.Adapter<CatsViewHolder>() {

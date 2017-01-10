@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.widget.LinearLayout
 import com.odai.firecats.R
 import com.odai.firecats.cat.model.Cat
-import com.odai.firecats.cats.CatsPresenter
+import com.odai.firecats.cats.displayer.CatsDisplayer
 import com.odai.firecats.favourite.model.ActionState
 import com.odai.firecats.favourite.model.FavouriteState
 import com.odai.firecats.favourite.model.FavouriteStatus
@@ -20,7 +20,7 @@ class CatEntryView(context: Context, attrs: AttributeSet) : LinearLayout(context
         super.onFinishInflate()
     }
 
-    fun display(cat: Cat, favouriteState: FavouriteState, listener: CatsPresenter.CatClickedListener) {
+    fun display(cat: Cat, favouriteState: FavouriteState, listener: CatsDisplayer.CatsActionListener) {
         catLabel.text = cat.name
 
         displayFavouriteIndicator(cat, favouriteState, listener)
@@ -35,7 +35,7 @@ class CatEntryView(context: Context, attrs: AttributeSet) : LinearLayout(context
         }
     }
 
-    private fun displayFavouriteIndicator(cat: Cat, favouriteState: FavouriteState, listener: CatsPresenter.CatClickedListener) {
+    private fun displayFavouriteIndicator(cat: Cat, favouriteState: FavouriteState, listener: CatsDisplayer.CatsActionListener) {
         favouriteIndicator.clearColorFilter()
         favouriteIndicator.setOnClickListener { listener.onFavouriteClicked(cat, favouriteState) }
         favouriteIndicator.setImageDrawable(favouriteDrawable(favouriteState.status))

@@ -3,7 +3,7 @@ package com.odai.firecats.cats
 import com.odai.firecats.cat.model.Cat
 import com.odai.firecats.cats.model.Cats
 import com.odai.firecats.cats.service.CatsService
-import com.odai.firecats.cats.view.CatsView
+import com.odai.firecats.cats.displayer.CatsDisplayer
 import com.odai.firecats.event.Event
 import com.odai.firecats.event.Status
 import com.odai.firecats.favourite.model.ActionState
@@ -11,7 +11,7 @@ import com.odai.firecats.favourite.model.FavouriteCats
 import com.odai.firecats.favourite.model.FavouriteState
 import com.odai.firecats.favourite.model.FavouriteStatus
 import com.odai.firecats.favourite.service.FavouriteCatsService
-import com.odai.firecats.loading.LoadingView
+import com.odai.firecats.loading.LoadingDisplayer
 import com.odai.firecats.navigation.Navigator
 import org.junit.After
 import org.junit.Before
@@ -31,22 +31,22 @@ class CatsPresenterTest {
     var favouriteCatsSubject: BehaviorSubject<FavouriteCats> = BehaviorSubject.create()
     var favouriteService: FavouriteCatsService = mock(FavouriteCatsService::class.java)
 
-    var view: CatsView = mock(CatsView::class.java)
-    var loadingView: LoadingView = mock(LoadingView::class.java)
+    var displayer: CatsDisplayer = mock(CatsDisplayer::class.java)
+    var loadingDisplayer: LoadingDisplayer = mock(LoadingDisplayer::class.java)
 
     var navigator: Navigator = mock(Navigator::class.java)
 
-    var presenter = CatsPresenter(service, favouriteService, navigator, view, loadingView)
+    var presenter = CatsPresenter(service, favouriteService, navigator, displayer, loadingDisplayer)
 
     @Before
     fun setUp() {
         setUpService()
-        presenter = CatsPresenter(service, favouriteService, navigator, view, loadingView)
+        presenter = CatsPresenter(service, favouriteService, navigator, displayer, loadingDisplayer)
     }
 
     @After
     fun tearDown() {
-        reset(view, loadingView, service, favouriteService)
+        reset(displayer, loadingDisplayer, service, favouriteService)
     }
 
     @Test
@@ -55,7 +55,7 @@ class CatsPresenterTest {
 
         catsSubject.onNext(Cats(listOf(Cat(42, "NewCat", URI.create("")))))
 
-        verify(view).display(Cats(listOf(Cat(42, "NewCat", URI.create("")))))
+        verify(displayer).display(Cats(listOf(Cat(42, "NewCat", URI.create("")))))
     }
 
     @Test
@@ -67,7 +67,7 @@ class CatsPresenterTest {
         )
         favouriteCatsSubject.onNext(favouriteCats)
 
-        verify(view).display(favouriteCats)
+        verify(displayer).display(favouriteCats)
     }
 
     @Test
@@ -76,7 +76,7 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.LOADING, null, null))
 
-        verify(loadingView).showLoadingScreen()
+        verify(loadingDisplayer).showLoadingScreen()
     }
 
     @Test
@@ -85,7 +85,7 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.LOADING, Cats(listOf(Cat(42, "NewCat", URI.create("")))), null))
 
-        verify(loadingView).showLoadingIndicator()
+        verify(loadingDisplayer).showLoadingIndicator()
     }
 
     @Test
@@ -94,7 +94,7 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.IDLE, null, null))
 
-        verify(loadingView).showEmptyScreen()
+        verify(loadingDisplayer).showEmptyScreen()
     }
 
     @Test
@@ -103,7 +103,7 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "NewCat", URI.create("")))), null))
 
-        verify(loadingView).showData()
+        verify(loadingDisplayer).showData()
     }
 
     @Test
@@ -112,7 +112,7 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.ERROR, null, null))
 
-        verify(loadingView).showErrorScreen()
+        verify(loadingDisplayer).showErrorScreen()
     }
 
     @Test
@@ -121,7 +121,7 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.ERROR, Cats(listOf(Cat(42, "NewCat", URI.create("")))), null))
 
-        verify(loadingView).showErrorIndicator()
+        verify(loadingDisplayer).showErrorIndicator()
     }
 
     @Test
@@ -139,7 +139,7 @@ class CatsPresenterTest {
 
         catsSubject.onNext(Cats(listOf(Cat(42, "NewCat", URI.create("")))))
 
-        verifyZeroInteractions(view)
+        verifyZeroInteractions(displayer)
     }
 
     @Test
@@ -151,7 +151,7 @@ class CatsPresenterTest {
         )
         favouriteCatsSubject.onNext(favouriteCats)
 
-        verifyZeroInteractions(view)
+        verifyZeroInteractions(displayer)
     }
 
     @Test
@@ -160,7 +160,7 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.LOADING, null, null))
 
-        verifyZeroInteractions(loadingView)
+        verifyZeroInteractions(loadingDisplayer)
     }
 
     @Test
@@ -169,7 +169,7 @@ class CatsPresenterTest {
 
         presenter.startPresenting()
 
-        verify(loadingView).attach(presenter.retryListener)
+        verify(loadingDisplayer).attach(presenter.retryListener)
     }
 
     @Test
@@ -178,7 +178,7 @@ class CatsPresenterTest {
 
         presenter.startPresenting()
 
-        verify(view).attach(presenter.catClickedListener)
+        verify(displayer).attach(presenter.catClickedListener)
     }
 
     @Test
@@ -302,7 +302,7 @@ class CatsPresenterTest {
 
     private fun givenThePresenterStoppedPresenting() {
         presenter.startPresenting()
-        reset(loadingView, view)
+        reset(loadingDisplayer, displayer)
         presenter.stopPresenting()
     }
 

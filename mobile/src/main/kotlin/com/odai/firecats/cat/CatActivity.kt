@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.odai.firecats.CatApplication
 import com.odai.firecats.R
-import com.odai.firecats.cat.view.CatView
+import com.odai.firecats.cat.displayer.CatDisplayer
 import com.odai.firecats.cats.CatsPresenter
-import com.odai.firecats.cats.view.CatsView
-import com.odai.firecats.loading.LoadingView
+import com.odai.firecats.cats.displayer.CatsDisplayer
+import com.odai.firecats.loading.LoadingDisplayer
 import com.odai.firecats.navigation.AndroidNavigator
 import kotlinx.android.synthetic.main.activity_cat.*
 

@@ -1,8 +1,8 @@
-package com.odai.firecats.cat.view
+package com.odai.firecats.cat.displayer
 
 import com.odai.firecats.cat.model.Cat
 
-interface CatView {
+interface CatDisplayer {
 
     fun display(cat: Cat)
 

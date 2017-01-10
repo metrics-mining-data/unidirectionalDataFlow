@@ -5,8 +5,8 @@ import android.support.v7.app.AppCompatActivity
 import com.odai.firecats.CatApplication
 import com.odai.firecats.R
 import com.odai.firecats.cats.view.AndroidCatsView
-import com.odai.firecats.cats.view.CatsView
-import com.odai.firecats.loading.LoadingView
+import com.odai.firecats.cats.displayer.CatsDisplayer
+import com.odai.firecats.loading.LoadingDisplayer
 import com.odai.firecats.navigation.AndroidNavigator
 import kotlinx.android.synthetic.main.activity_cats.*
 

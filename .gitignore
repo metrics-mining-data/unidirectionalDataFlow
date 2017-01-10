@@ -40,3 +40,5 @@ crashlytics.properties
 
 # memory dumps
 captures/
+
+google-services.json

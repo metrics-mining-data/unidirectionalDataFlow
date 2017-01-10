@@ -1,9 +1,9 @@
 package com.odai.firecats.cats
 
 import com.odai.firecats.cat.model.Cat
+import com.odai.firecats.cats.displayer.CatsDisplayer
 import com.odai.firecats.cats.model.Cats
 import com.odai.firecats.cats.service.CatsService
-import com.odai.firecats.cats.view.CatsView
 import com.odai.firecats.event.DataObserver
 import com.odai.firecats.event.Event
 import com.odai.firecats.event.EventObserver
@@ -12,8 +12,7 @@ import com.odai.firecats.favourite.model.FavouriteCats
 import com.odai.firecats.favourite.model.FavouriteState
 import com.odai.firecats.favourite.model.FavouriteStatus
 import com.odai.firecats.favourite.service.FavouriteCatsService
-import com.odai.firecats.loading.LoadingView
-import com.odai.firecats.loading.RetryClickedListener
+import com.odai.firecats.loading.LoadingDisplayer
 import com.odai.firecats.navigation.Navigator
 import io.reactivex.disposables.CompositeDisposable
 
@@ -21,15 +20,15 @@ class CatsPresenter(
         private val catsService: CatsService,
         private val favouriteCatsService: FavouriteCatsService,
         private val navigate: Navigator,
-        private val catsView: CatsView,
-        private val loadingView: LoadingView
+        private val catsDisplayer: CatsDisplayer,
+        private val loadingDisplayer: LoadingDisplayer
 ) {
 
     private var subscriptions = CompositeDisposable()
 
     fun startPresenting() {
-        catsView.attach(catClickedListener)
-        loadingView.attach(retryListener)
+        catsDisplayer.attach(catClickedListener)
+        loadingDisplayer.attach(retryListener)
         subscriptions.add(
                 catsService.getCatsEvents()
                         .subscribe(catsEventsObserver)
@@ -52,25 +51,25 @@ class CatsPresenter(
     private val catsEventsObserver = object : EventObserver<Cats>() {
         override fun onLoading(event: Event<Cats>) {
             if (event.data != null) {
-                loadingView.showLoadingIndicator()
+                loadingDisplayer.showLoadingIndicator()
             } else {
-                loadingView.showLoadingScreen()
+                loadingDisplayer.showLoadingScreen()
             }
         }
 
         override fun onIdle(event: Event<Cats>) {
             if (event.data != null) {
-                loadingView.showData()
+                loadingDisplayer.showData()
             } else {
-                loadingView.showEmptyScreen()
+                loadingDisplayer.showEmptyScreen()
             }
         }
 
         override fun onError(event: Event<Cats>) {
             if (event.data != null) {
-                loadingView.showErrorIndicator()
+                loadingDisplayer.showErrorIndicator()
             } else {
-                loadingView.showErrorScreen()
+                loadingDisplayer.showErrorScreen()
             }
         }
 
@@ -78,22 +77,17 @@ class CatsPresenter(
 
     private val catsObserver = object : DataObserver<Cats> {
         override fun accept(p0: Cats) {
-            catsView.display(p0)
+            catsDisplayer.display(p0)
         }
     }
 
     private val favouriteCatsObserver = object : DataObserver<FavouriteCats> {
         override fun accept(p0: FavouriteCats) {
-            catsView.display(p0)
+            catsDisplayer.display(p0)
         }
     }
 
-    interface CatClickedListener {
-        fun onFavouriteClicked(cat: Cat, state: FavouriteState)
-        fun onCatClicked(cat: Cat)
-    }
-
-    val retryListener = object : RetryClickedListener {
+    val retryListener = object : LoadingDisplayer.LoadingActionListener {
 
         override fun onRetry() {
             catsService.refreshCats()
@@ -101,7 +95,7 @@ class CatsPresenter(
 
     }
 
-    val catClickedListener = object : CatClickedListener {
+    val catClickedListener = object : CatsDisplayer.CatsActionListener {
 
         override fun onCatClicked(cat: Cat) {
             navigate.toCat(cat)

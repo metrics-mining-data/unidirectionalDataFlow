@@ -4,12 +4,11 @@ import android.content.Context
 import android.support.design.widget.Snackbar
 import android.util.AttributeSet
 import android.view.View
-import android.widget.*
+import android.widget.FrameLayout
 import com.odai.firecats.R
-import com.odai.firecats.cats.CatsPresenter
 import kotlinx.android.synthetic.main.loading_view.view.*
 
-class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingView, FrameLayout(context, attrs) {
+class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingDisplayer, FrameLayout(context, attrs) {
 
     private var _content: View? = null
 
@@ -26,7 +25,7 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingView, F
         content = findViewById(R.id.content)
     }
 
-    override fun attach(retryListener: RetryClickedListener) {
+    override fun attach(retryListener: LoadingDisplayer.LoadingActionListener) {
         loadingButton.setOnClickListener {
             retryListener.onRetry()
         }

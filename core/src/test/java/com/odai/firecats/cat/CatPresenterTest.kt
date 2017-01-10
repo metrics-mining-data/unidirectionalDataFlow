@@ -2,10 +2,10 @@ package com.odai.firecats.cat
 
 import com.odai.firecats.cat.model.Cat
 import com.odai.firecats.cat.service.CatService
-import com.odai.firecats.cat.view.CatView
+import com.odai.firecats.cat.displayer.CatDisplayer
 import com.odai.firecats.event.Event
 import com.odai.firecats.event.Status
-import com.odai.firecats.loading.LoadingView
+import com.odai.firecats.loading.LoadingDisplayer
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -22,20 +22,20 @@ class CatPresenterTest {
     var catEventSubject: BehaviorSubject<Event<Cat>> = BehaviorSubject.create()
     var service: CatService = mock(CatService::class.java)
 
-    var view: CatView = mock(CatView::class.java)
-    var loadingView: LoadingView = mock(LoadingView::class.java)
+    var displayer: CatDisplayer = mock(CatDisplayer::class.java)
+    var loadingDisplayer: LoadingDisplayer = mock(LoadingDisplayer::class.java)
 
-    var presenter = CatPresenter(42, service, view, loadingView)
+    var presenter = CatPresenter(42, service, displayer, loadingDisplayer)
 
     @Before
     fun setUp() {
         setUpService()
-        presenter = CatPresenter(42, service, view, loadingView)
+        presenter = CatPresenter(42, service, displayer, loadingDisplayer)
     }
 
     @After
     fun tearDown() {
-        reset(view, loadingView, service)
+        reset(displayer, loadingDisplayer, service)
     }
 
     @Test
@@ -44,7 +44,7 @@ class CatPresenterTest {
 
         catSubject.onNext(Cat(42, "NewCat", URI.create("")))
 
-        verify(view).display(Cat(42, "NewCat", URI.create("")))
+        verify(displayer).display(Cat(42, "NewCat", URI.create("")))
     }
 
     @Test
@@ -53,7 +53,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.LOADING, null, null))
 
-        verify(loadingView).showLoadingScreen()
+        verify(loadingDisplayer).showLoadingScreen()
     }
 
     @Test
@@ -62,7 +62,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.LOADING, Cat(42, "NewCat", URI.create("")), null))
 
-        verify(loadingView).showLoadingIndicator()
+        verify(loadingDisplayer).showLoadingIndicator()
     }
 
     @Test
@@ -71,7 +71,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.IDLE, null, null))
 
-        verify(loadingView).showEmptyScreen()
+        verify(loadingDisplayer).showEmptyScreen()
     }
 
     @Test
@@ -80,7 +80,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.IDLE, Cat(42, "NewCat", URI.create("")), null))
 
-        verify(loadingView).showData()
+        verify(loadingDisplayer).showData()
     }
 
     @Test
@@ -89,7 +89,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.ERROR, null, null))
 
-        verify(loadingView).showErrorScreen()
+        verify(loadingDisplayer).showErrorScreen()
     }
 
     @Test
@@ -98,7 +98,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.ERROR, Cat(42, "NewCat", URI.create("")), null))
 
-        verify(loadingView).showErrorIndicator()
+        verify(loadingDisplayer).showErrorIndicator()
     }
 
     @Test
@@ -116,7 +116,7 @@ class CatPresenterTest {
 
         catSubject.onNext(Cat(42, "NewCat", URI.create("")))
 
-        verifyZeroInteractions(view)
+        verifyZeroInteractions(displayer)
     }
 
     @Test
@@ -125,7 +125,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.LOADING, null, null))
 
-        verifyZeroInteractions(loadingView)
+        verifyZeroInteractions(loadingDisplayer)
     }
 
     @Test
@@ -134,7 +134,7 @@ class CatPresenterTest {
 
         presenter.startPresenting()
 
-        verify(loadingView).attach(presenter.retryListener)
+        verify(loadingDisplayer).attach(presenter.retryListener)
     }
 
     @Test
@@ -182,7 +182,7 @@ class CatPresenterTest {
 
     private fun givenThePresenterStoppedPresenting() {
         presenter.startPresenting()
-        reset(loadingView)
+        reset(loadingDisplayer)
         presenter.stopPresenting()
     }
 
