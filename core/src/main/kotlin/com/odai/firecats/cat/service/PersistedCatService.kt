@@ -1,0 +1,25 @@
+package com.odai.firecats.cat.service
+
+import com.odai.firecats.cat.model.Cat
+import com.odai.firecats.cats.service.CatsService
+import com.odai.firecats.event.Event
+import com.odai.firecats.event.asData
+import io.reactivex.Flowable
+
+class PersistedCatService(private val catsService: CatsService) : CatService {
+
+    override fun refreshCat() {
+        catsService.refreshCats()
+    }
+
+    override fun getCatEvents(id: Int): Flowable<Event<Cat>> {
+        return catsService.getCatsEvents().map {
+            Event<Cat>(it.status, it?.data?.first { it.id == id }, it.error)
+        }
+    }
+
+    override fun getCat(id: Int): Flowable<Cat> {
+        return getCatEvents(id).compose(asData())
+    }
+
+}

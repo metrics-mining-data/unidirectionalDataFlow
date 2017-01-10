@@ -7,7 +7,7 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        applicationId "com.odai.architecturedemo"
+        applicationId "com.odai.firecats"
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
