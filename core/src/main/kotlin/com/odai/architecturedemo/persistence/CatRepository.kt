@@ -4,15 +4,15 @@ import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
-import rx.Observable
+import io.reactivex.Flowable
 
 interface CatRepository {
 
     fun saveCats(cats: Cats)
 
-    fun readCats(): Observable<Cats>
+    fun readCats(): Flowable<Cats>
 
-    fun readFavouriteCats(): Observable<FavouriteCats>
+    fun readFavouriteCats(): Flowable<FavouriteCats>
 
     fun saveFavouriteCats(cats: FavouriteCats)
 

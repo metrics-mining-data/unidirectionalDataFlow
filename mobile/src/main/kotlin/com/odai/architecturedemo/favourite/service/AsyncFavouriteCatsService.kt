@@ -1,10 +1,9 @@
 package com.odai.architecturedemo.favourite.service
 
 import com.odai.architecturedemo.cat.model.Cat
-import com.odai.architecturedemo.favourite.service.FavouriteCatsService
-import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
+import io.reactivex.Completable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class AsyncFavouriteCatsService(private val favouriteCatsService: FavouriteCatsService) : FavouriteCatsService {
 
@@ -17,13 +16,13 @@ class AsyncFavouriteCatsService(private val favouriteCatsService: FavouriteCatsS
             .observeOn(AndroidSchedulers.mainThread())
 
     override fun addToFavourite(cat: Cat) {
-        Observable.create<Unit> { favouriteCatsService.addToFavourite(cat) }
+        Completable.create { favouriteCatsService.addToFavourite(cat) }
                 .subscribeOn(Schedulers.io())
                 .subscribe()
     }
 
     override fun removeFromFavourite(cat: Cat) {
-        Observable.create<Unit> { favouriteCatsService.removeFromFavourite(cat) }
+        Completable.create { favouriteCatsService.removeFromFavourite(cat) }
                 .subscribeOn(Schedulers.io())
                 .subscribe()
     }

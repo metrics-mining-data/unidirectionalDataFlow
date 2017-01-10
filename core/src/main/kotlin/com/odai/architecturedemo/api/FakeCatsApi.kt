@@ -2,8 +2,8 @@ package com.odai.architecturedemo.api
 
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
-import rx.Observable
-import rx.schedulers.Schedulers
+import io.reactivex.Flowable
+import io.reactivex.schedulers.Schedulers
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
@@ -11,23 +11,23 @@ class FakeCatsApi : CatApi {
 
     private var favouriteCats = Cats(listOf())
 
-    override fun getFavouriteCats(): Observable<Cats> {
-        return Observable.just(favouriteCats).delay(2, TimeUnit.SECONDS, Schedulers.immediate()).first()
+    override fun getFavouriteCats(): Flowable<Cats> {
+        return Flowable.just(favouriteCats).delay(2, TimeUnit.SECONDS, Schedulers.trampoline())
     }
 
-    override fun getCats(): Observable<Cats> {
-        return Observable.just(fakeCats()).delay(2, TimeUnit.SECONDS, Schedulers.immediate()).first()
+    override fun getCats(): Flowable<Cats> {
+        return Flowable.just(fakeCats()).delay(2, TimeUnit.SECONDS, Schedulers.trampoline())
     }
 
-    override fun addToFavourite(cat: Cat): Observable<Cat> {
-        return Observable.just(cat).delay(2, TimeUnit.SECONDS, Schedulers.immediate()).first()
+    override fun addToFavourite(cat: Cat): Flowable<Cat> {
+        return Flowable.just(cat).delay(2, TimeUnit.SECONDS, Schedulers.trampoline())
                 .doOnNext {
                     favouriteCats = favouriteCats.add(cat)
                 }
     }
 
-    override fun removeFromFavourite(cat: Cat): Observable<Cat> {
-        return Observable.just(cat).delay(2, TimeUnit.SECONDS, Schedulers.immediate())
+    override fun removeFromFavourite(cat: Cat): Flowable<Cat> {
+        return Flowable.just(cat).delay(2, TimeUnit.SECONDS, Schedulers.trampoline())
                 .doOnNext {
                     favouriteCats = favouriteCats.remove(cat)
                 }

@@ -1,6 +1,6 @@
 package com.odai.architecturedemo.favourite.service
 
-import com.jakewharton.rxrelay.BehaviorRelay
+import com.jakewharton.rxrelay2.BehaviorRelay
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
@@ -11,8 +11,9 @@ import com.odai.architecturedemo.favourite.model.FavouriteCats
 import com.odai.architecturedemo.favourite.model.FavouriteState
 import com.odai.architecturedemo.favourite.model.FavouriteStatus
 import com.odai.architecturedemo.persistence.CatRepository
-import rx.Observable
-import rx.Observer
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
+import io.reactivex.functions.Consumer
 
 class PersistedFavouriteCatsService(
         private val api: CatApi,
@@ -20,36 +21,36 @@ class PersistedFavouriteCatsService(
         private val freshnessChecker: CatsFreshnessChecker
 ) : FavouriteCatsService {
 
-    private val favouriteCatsRelay: BehaviorRelay<Event<FavouriteCats>> = BehaviorRelay.create(Event<FavouriteCats>(Status.IDLE, null, null))
+    private val favouriteCatsRelay: BehaviorRelay<Event<FavouriteCats>> = BehaviorRelay.createDefault(Event<FavouriteCats>(Status.IDLE, null, null))
 
-    override fun getFavouriteCatsEvents(): Observable<Event<FavouriteCats>> {
-        return favouriteCatsRelay.asObservable()
+    override fun getFavouriteCatsEvents(): Flowable<Event<FavouriteCats>> {
+        return favouriteCatsRelay.toFlowable(BackpressureStrategy.LATEST)
                 .startWith(initialiseSubject())
                 .distinctUntilChanged()
     }
 
-    override fun getFavouriteCats() = getFavouriteCatsEvents().compose(asData())
+    override fun getFavouriteCats(): Flowable<FavouriteCats> = getFavouriteCatsEvents().compose(asData())
 
-    private fun initialiseSubject(): Observable<Event<FavouriteCats>> {
+    private fun initialiseSubject(): Flowable<Event<FavouriteCats>> {
         if (isInitialised(favouriteCatsRelay)) {
-            return Observable.empty()
+            return Flowable.empty()
         }
         return repository.readFavouriteCats()
                 .flatMap { updateFromRemoteIfOutdated(it) }
                 .switchIfEmpty(fetchRemoteFavouriteCats())
                 .compose(asEvent<FavouriteCats>())
-                .doOnNext { favouriteCatsRelay.call(it) }
+                .doOnNext { favouriteCatsRelay.accept(it) }
     }
 
-    private fun updateFromRemoteIfOutdated(it: FavouriteCats): Observable<FavouriteCats>? {
+    private fun updateFromRemoteIfOutdated(it: FavouriteCats): Flowable<FavouriteCats>? {
         return if (freshnessChecker.isFresh(it)) {
-            Observable.just(it)
+            Flowable.just(it)
         } else {
             fetchRemoteFavouriteCats().startWith(it)
         }
     }
 
-    private fun fetchRemoteFavouriteCats(): Observable<FavouriteCats> {
+    private fun fetchRemoteFavouriteCats(): Flowable<FavouriteCats> {
         return api.getFavouriteCats()
                 .map { asFavouriteCats(it) }
                 .doOnNext { repository.saveFavouriteCats(it) }
@@ -81,20 +82,12 @@ class PersistedFavouriteCatsService(
                 .subscribe(favouriteCatStateObserver)
     }
 
-    private val favouriteCatStateObserver = object : Observer<Pair<Cat, FavouriteState>> {
+    private val favouriteCatStateObserver = object : Consumer<Pair<Cat, FavouriteState>> {
 
-        override fun onNext(p0: Pair<Cat, FavouriteState>) {
+        override fun accept(p0: Pair<Cat, FavouriteState>) {
             val value = favouriteCatsRelay.value
             val favouriteCats = value.data ?: FavouriteCats(mapOf())
-            favouriteCatsRelay.call(Event(value.status, favouriteCats.put(p0), value.error))
-        }
-
-        override fun onError(p0: Throwable?) {
-            throw UnsupportedOperationException("Error on favourite state pipeline. This should never happen", p0)
-        }
-
-        override fun onCompleted() {
-            // We don't want to finish the subject after a single favourite action so we don't do anything here
+            favouriteCatsRelay.accept(Event(value.status, favouriteCats.put(p0), value.error))
         }
 
     }

@@ -1,11 +1,12 @@
 package com.odai.architecturedemo.cats.service
 
-import com.jakewharton.rxrelay.BehaviorRelay
+import com.jakewharton.rxrelay2.BehaviorRelay
 import com.odai.architecturedemo.api.CatApi
 import com.odai.architecturedemo.cats.model.Cats
 import com.odai.architecturedemo.event.*
 import com.odai.architecturedemo.persistence.CatRepository
-import rx.Observable
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 
 class PersistedCatsService(
         private val api: CatApi,
@@ -13,36 +14,36 @@ class PersistedCatsService(
         private val catsFreshnessChecker: CatsFreshnessChecker
 ) : CatsService {
 
-    private val catsRelay: BehaviorRelay<Event<Cats>> = BehaviorRelay.create(Event<Cats>(Status.IDLE, null, null))
+    private val catsRelay: BehaviorRelay<Event<Cats>> = BehaviorRelay.createDefault(Event<Cats>(Status.IDLE, null, null))
 
-    override fun getCatsEvents(): Observable<Event<Cats>> {
-        return catsRelay.asObservable()
+    override fun getCatsEvents(): Flowable<Event<Cats>> {
+        return catsRelay.toFlowable(BackpressureStrategy.LATEST)
                 .startWith(initialiseSubject())
                 .distinctUntilChanged()
     }
 
-    override fun getCats() = getCatsEvents().compose(asData())
+    override fun getCats(): Flowable<Cats> = getCatsEvents().compose(asData())
 
     override fun refreshCats() {
         fetchRemoteCats()
                 .compose(asEvent<Cats>())
-                .subscribe { catsRelay.call(it) }
+                .subscribe { catsRelay.accept(it) }
     }
 
-    private fun initialiseSubject(): Observable<Event<Cats>> {
+    private fun initialiseSubject(): Flowable<Event<Cats>> {
         if (isInitialised(catsRelay)) {
-            return Observable.empty()
+            return Flowable.empty()
         }
         return repository.readCats()
                 .flatMap { updateFromRemoteIfOutdated(it) }
                 .switchIfEmpty(fetchRemoteCats())
                 .compose(asEvent<Cats>())
-                .doOnNext { catsRelay.call(it) }
+                .doOnNext { catsRelay.accept(it) }
     }
 
-    private fun updateFromRemoteIfOutdated(it: Cats): Observable<Cats> {
+    private fun updateFromRemoteIfOutdated(it: Cats): Flowable<Cats> {
         return if (catsFreshnessChecker.isFresh(it)) {
-            Observable.just(it)
+            Flowable.just(it)
         } else {
             fetchRemoteCats().startWith(it)
         }

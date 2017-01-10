@@ -3,14 +3,12 @@ package com.odai.architecturedemo.cat
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cat.service.CatService
 import com.odai.architecturedemo.cat.view.CatView
-import com.odai.architecturedemo.cats.CatsPresenter
 import com.odai.architecturedemo.event.DataObserver
 import com.odai.architecturedemo.event.Event
 import com.odai.architecturedemo.event.EventObserver
 import com.odai.architecturedemo.loading.LoadingView
 import com.odai.architecturedemo.loading.RetryClickedListener
-import rx.Observer
-import rx.subscriptions.CompositeSubscription
+import io.reactivex.disposables.CompositeDisposable
 
 class CatPresenter(
         private val id: Int,
@@ -19,7 +17,7 @@ class CatPresenter(
         private val loadingView: LoadingView
 ) {
 
-    private var subscriptions = CompositeSubscription()
+    private var subscriptions = CompositeDisposable()
 
     fun startPresenting() {
         loadingView.attach(retryListener)
@@ -35,7 +33,7 @@ class CatPresenter(
 
     fun stopPresenting() {
         subscriptions.clear()
-        subscriptions = CompositeSubscription()
+        subscriptions = CompositeDisposable()
     }
 
     private val catEventsObserver = object : EventObserver<Cat>() {
@@ -66,8 +64,8 @@ class CatPresenter(
     }
 
     private val catObserver = object : DataObserver<Cat> {
-        override fun onNext(p0: Cat) {
-            catView.display(p0);
+        override fun accept(p0: Cat) {
+            catView.display(p0)
         }
     }
 

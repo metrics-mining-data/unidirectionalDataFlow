@@ -15,7 +15,7 @@ import com.odai.architecturedemo.favourite.service.FavouriteCatsService
 import com.odai.architecturedemo.loading.LoadingView
 import com.odai.architecturedemo.loading.RetryClickedListener
 import com.odai.architecturedemo.navigation.Navigator
-import rx.subscriptions.CompositeSubscription
+import io.reactivex.disposables.CompositeDisposable
 
 class CatsPresenter(
         private val catsService: CatsService,
@@ -25,7 +25,7 @@ class CatsPresenter(
         private val loadingView: LoadingView
 ) {
 
-    private var subscriptions = CompositeSubscription()
+    private var subscriptions = CompositeDisposable()
 
     fun startPresenting() {
         catsView.attach(catClickedListener)
@@ -46,7 +46,7 @@ class CatsPresenter(
 
     fun stopPresenting() {
         subscriptions.clear()
-        subscriptions = CompositeSubscription()
+        subscriptions = CompositeDisposable()
     }
 
     private val catsEventsObserver = object : EventObserver<Cats>() {
@@ -77,13 +77,13 @@ class CatsPresenter(
     }
 
     private val catsObserver = object : DataObserver<Cats> {
-        override fun onNext(p0: Cats) {
-            catsView.display(p0);
+        override fun accept(p0: Cats) {
+            catsView.display(p0)
         }
     }
 
     private val favouriteCatsObserver = object : DataObserver<FavouriteCats> {
-        override fun onNext(p0: FavouriteCats) {
+        override fun accept(p0: FavouriteCats) {
             catsView.display(p0)
         }
     }

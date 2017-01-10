@@ -1,15 +1,6 @@
 package com.odai.architecturedemo.event
 
-import rx.Observer
+import io.reactivex.functions.Consumer
 
-interface  DataObserver<T>: Observer<T> {
-
-    override fun onError(p0: Throwable?) {
-        throw UnsupportedOperationException("Error on event pipeline. This should never happen", p0)
-    }
-
-    override fun onCompleted() {
-        throw UnsupportedOperationException("Completion on event pipeline. This should never happen")
-    }
-
+interface  DataObserver<T>: Consumer<T> {
 }

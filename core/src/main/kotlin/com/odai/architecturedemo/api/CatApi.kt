@@ -2,16 +2,16 @@ package com.odai.architecturedemo.api
 
 import com.odai.architecturedemo.cat.model.Cat
 import com.odai.architecturedemo.cats.model.Cats
-import rx.Observable
+import io.reactivex.Flowable
 
 interface CatApi {
 
-    fun getCats(): Observable<Cats>;
+    fun getCats(): Flowable<Cats>;
 
-    fun getFavouriteCats(): Observable<Cats>
+    fun getFavouriteCats(): Flowable<Cats>
 
-    fun addToFavourite(cat: Cat): Observable<Cat>
+    fun addToFavourite(cat: Cat): Flowable<Cat>
 
-    fun removeFromFavourite(cat: Cat): Observable<Cat>
+    fun removeFromFavourite(cat: Cat): Flowable<Cat>
 
 }

@@ -1,18 +1,10 @@
 package com.odai.architecturedemo.event
 
-import rx.Observer
+import io.reactivex.functions.Consumer
 
-abstract class EventObserver<T>: Observer<Event<T>> {
+abstract class EventObserver<T>: Consumer<Event<T>> {
 
-    override fun onError(p0: Throwable?) {
-        throw UnsupportedOperationException("Error on event pipeline. This should never happen", p0)
-    }
-
-    override fun onCompleted() {
-        throw UnsupportedOperationException("Completion on event pipeline. This should never happen")
-    }
-
-    override fun onNext(p0: Event<T>) {
+    override fun accept(p0: Event<T>) {
         when (p0.status) {
             Status.LOADING -> onLoading(p0)
             Status.IDLE -> onIdle(p0)
