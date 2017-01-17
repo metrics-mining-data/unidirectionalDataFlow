@@ -10,6 +10,4 @@ interface CatService {
 
     fun getCat(id: Int): Flowable<Cat>
 
-    fun refreshCat()
-
 }

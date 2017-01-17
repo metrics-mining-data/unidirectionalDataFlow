@@ -1,18 +1,22 @@
 package com.odai.firecats.event
 
 import com.jakewharton.rxrelay2.BehaviorRelay
+import io.reactivex.Flowable
 import io.reactivex.FlowableTransformer
 
 fun <T> asEvent() = FlowableTransformer<T, Event<T>> { p0 ->
     p0.materialize()
+            .flatMap {
+                Flowable.just(it, it)
+            }
             .scan(Event<T>(Status.LOADING, null, null)) { event, notification ->
                 when {
-                    notification.isOnNext -> Event(Status.LOADING, notification.value, null)
-                    notification.isOnComplete -> Event(Status.IDLE, event.data, null)
-                    notification.isOnError -> Event(Status.ERROR, event.data, notification.error)
-                    else -> event
+                    notification.isOnNext -> return@scan Event(Status.IDLE, notification.value, null)
+                    notification.isOnComplete -> return@scan Event(Status.ERROR, event.data, Exception("Unexpected end of stream"))
+                    notification.isOnError -> return@scan Event(Status.ERROR, event.data, notification.error)
+                    else -> return@scan event
                 }
-            }.startWith(Event<T>(Status.LOADING, null, null))
+            }.distinctUntilChanged()
 }
 
 fun <T> asData() = FlowableTransformer<Event<T>, T> { p0 ->

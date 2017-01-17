@@ -11,6 +11,4 @@ interface CatsService {
 
     fun getCats(): Flowable<Cats>
 
-    fun refreshCats()
-
 }

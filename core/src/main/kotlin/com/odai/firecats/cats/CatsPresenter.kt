@@ -90,7 +90,7 @@ class CatsPresenter(
     val retryListener = object : LoadingDisplayer.LoadingActionListener {
 
         override fun onRetry() {
-            catsService.refreshCats()
+            //TBD if still needed
         }
 
     }

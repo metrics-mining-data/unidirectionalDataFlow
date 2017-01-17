@@ -8,16 +8,14 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.target.Target
-import java.net.URI
-import java.util.*
 
-fun load(uri: URI, init: ImageRequestBuilder.() -> Unit): ImageRequestBuilder {
+fun load(uri: String, init: ImageRequestBuilder.() -> Unit): ImageRequestBuilder {
     val imageLoader = ImageRequestBuilder(uri)
     imageLoader.init()
     return imageLoader
 }
 
-class ImageRequestBuilder(internal val uri: URI) {
+class ImageRequestBuilder(internal val uri: String) {
 
     internal var imageView: ImageView? = null
     internal var crop: Crop? = null

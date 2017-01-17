@@ -8,13 +8,9 @@ import io.reactivex.Flowable
 
 interface CatRepository {
 
-    fun saveCats(cats: Cats)
+    fun observeCats(): Flowable<Cats>
 
-    fun readCats(): Flowable<Cats>
-
-    fun readFavouriteCats(): Flowable<FavouriteCats>
-
-    fun saveFavouriteCats(cats: FavouriteCats)
+    fun observeFavouriteCats(): Flowable<FavouriteCats>
 
     fun saveCatFavoriteStatus(it: Pair<Cat, FavouriteState>)
 

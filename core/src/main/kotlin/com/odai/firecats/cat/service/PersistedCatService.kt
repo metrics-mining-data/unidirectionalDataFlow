@@ -8,10 +8,6 @@ import io.reactivex.Flowable
 
 class PersistedCatService(private val catsService: CatsService) : CatService {
 
-    override fun refreshCat() {
-        catsService.refreshCats()
-    }
-
     override fun getCatEvents(id: Int): Flowable<Event<Cat>> {
         return catsService.getCatsEvents().map {
             Event<Cat>(it.status, it?.data?.first { it.id == id }, it.error)
