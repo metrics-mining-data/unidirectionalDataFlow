@@ -22,7 +22,7 @@ class FirebaseCatRepository(val db: DatabaseReference) : CatRepository {
     }
 
     override fun observeFavouriteCats(user: User): Flowable<FavouriteCats> {
-        return observeValueEvents(db.child(user.id).child("favourites")) {
+        return observeValueEvents(db.child("users").child(user.id).child("favourites")) {
             val catsEntries = it?.children ?: emptyList()
             return@observeValueEvents catsEntries.fold(FavouriteCats(emptyMap())) { acc, it ->
                 acc.put(Pair<Int, FavouriteState>(parseInt(it.key), it.getValue(FavouriteState::class.java)))
@@ -33,7 +33,7 @@ class FirebaseCatRepository(val db: DatabaseReference) : CatRepository {
     }
 
     override fun saveCatFavoriteStatus(user: User, it: Pair<Int, FavouriteState>) {
-        db.child(user.id).child("favourites").child(it.first.toString()).setValue(it.second)
+        db.child("users").child(user.id).child("favourites").child(it.first.toString()).setValue(it.second)
     }
 
 }

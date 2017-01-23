@@ -8,4 +8,6 @@ interface LoginService {
     fun getAuthentication(): Flowable<Authentication>
 
     fun loginWithGoogle(idToken: String)
+
+    fun loginAnonymous()
 }

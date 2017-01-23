@@ -40,4 +40,11 @@ class FirebaseLoginService(private val loginRepository: LoginRepository) : Login
                 }
     }
 
+    override fun loginAnonymous() {
+        loginRepository.loginAnonymous()
+                .subscribe {
+                    authRelay.accept(it)
+                }
+    }
+
 }

@@ -24,7 +24,6 @@ class AndroidLoginNavigator(
         navigator.toCats()
     }
 
-
     override fun toGooglePlusLogin() {
         val signInIntent = googleApiClient.signInIntent
         activity.startActivityForResult(signInIntent, RC_SIGN_IN)

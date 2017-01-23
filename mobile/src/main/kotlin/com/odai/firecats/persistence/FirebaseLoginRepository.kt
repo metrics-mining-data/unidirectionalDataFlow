@@ -42,6 +42,24 @@ class FirebaseLoginRepository(private val firebaseAuth: FirebaseAuth) : LoginRep
         )
     }
 
+    override fun loginAnonymous(): Flowable<Authentication> {
+        return Flowable.create(
+                {
+                    firebaseAuth.signInAnonymously()
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val firebaseUser = task.result.user
+                                    it.onNext(authenticationFrom(firebaseUser))
+                                } else {
+                                    it.onNext(Authentication(null, task.exception))
+                                }
+                                it.onComplete()
+                            }
+                },
+                BackpressureStrategy.LATEST
+        )
+    }
+
     private fun authenticationFrom(currentUser: FirebaseUser): Authentication {
         return Authentication(User(currentUser.uid))
     }

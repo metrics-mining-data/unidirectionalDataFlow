@@ -12,6 +12,8 @@ interface LoginDisplayer {
 
         fun onGooglePlusLoginSelected()
 
+        fun onAnonymousLoginSelected()
+
     }
 
 }

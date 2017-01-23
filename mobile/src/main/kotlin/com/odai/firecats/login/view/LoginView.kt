@@ -22,10 +22,12 @@ class LoginView(context: Context, attrs: AttributeSet) : LinearLayout(context, a
 
     override fun attach(actionListener: LoginDisplayer.LoginActionListener) {
         sign_in_button.setOnClickListener { actionListener.onGooglePlusLoginSelected() }
+        sign_in_anonymous.setOnClickListener { actionListener.onAnonymousLoginSelected() }
     }
 
     override fun detach(actionListener: LoginDisplayer.LoginActionListener) {
         sign_in_button.setOnClickListener(null)
+        sign_in_anonymous.setOnClickListener(null)
     }
 
     override fun showAuthenticationError(message: String) {

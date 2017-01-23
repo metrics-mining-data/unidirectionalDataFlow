@@ -9,4 +9,6 @@ interface LoginRepository {
 
     fun loginWithGoogle(idToken: String): Flowable<Authentication>
 
+    fun  loginAnonymous(): Flowable<Authentication>
+
 }

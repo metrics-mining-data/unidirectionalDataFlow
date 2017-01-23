@@ -38,6 +38,11 @@ class LoginPresenter(
     }
 
     private val actionListener = object : LoginDisplayer.LoginActionListener {
+
+        override fun onAnonymousLoginSelected() {
+            loginService.loginAnonymous()
+        }
+
         override fun onGooglePlusLoginSelected() {
             navigator.toGooglePlusLogin();
         }
