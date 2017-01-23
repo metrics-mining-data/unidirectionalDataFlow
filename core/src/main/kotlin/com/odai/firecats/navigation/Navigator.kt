@@ -6,4 +6,6 @@ interface Navigator {
 
     fun toCat(cat: Cat)
 
+    fun toCats()
+
 }

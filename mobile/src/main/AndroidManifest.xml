@@ -16,7 +16,7 @@
       android:name="com.odai.firecats.imageloader.GlideConfiguration"
       android:value="GlideModule" />
 
-    <activity android:name="com.odai.firecats.cats.CatsActivity">
+    <activity android:name="com.odai.firecats.login.LoginActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -25,6 +25,8 @@
     </activity>
 
     <activity android:name="com.odai.firecats.cat.CatActivity"/>
+
+    <activity android:name="com.odai.firecats.cats.CatsActivity"/>
 
   </application>
 
