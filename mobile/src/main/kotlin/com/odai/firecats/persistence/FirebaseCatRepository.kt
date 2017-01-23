@@ -6,7 +6,9 @@ import com.odai.firecats.cat.model.Cat
 import com.odai.firecats.cats.model.Cats
 import com.odai.firecats.favourite.model.FavouriteCats
 import com.odai.firecats.favourite.model.FavouriteState
+import com.odai.firecats.login.model.User
 import io.reactivex.Flowable
+import java.lang.Integer.parseInt
 
 class FirebaseCatRepository(val db: DatabaseReference) : CatRepository {
 
@@ -19,12 +21,19 @@ class FirebaseCatRepository(val db: DatabaseReference) : CatRepository {
         }
     }
 
-    override fun observeFavouriteCats(): Flowable<FavouriteCats> {
-        return Flowable.empty()
+    override fun observeFavouriteCats(user: User): Flowable<FavouriteCats> {
+        return observeValueEvents(db.child(user.id).child("favourites")) {
+            val catsEntries = it?.children ?: emptyList()
+            return@observeValueEvents catsEntries.fold(FavouriteCats(emptyMap())) { acc, it ->
+                acc.put(Pair<Int, FavouriteState>(parseInt(it.key), it.getValue(FavouriteState::class.java)))
+            }
+        }.doOnError {
+            Log.e("FireCats", "!!!! Read Failed", it)
+        }
     }
 
-    override fun saveCatFavoriteStatus(it: Pair<Cat, FavouriteState>) {
-        // Ignore for now
+    override fun saveCatFavoriteStatus(user: User, it: Pair<Int, FavouriteState>) {
+        db.child(user.id).child("favourites").child(it.first.toString()).setValue(it.second)
     }
 
 }

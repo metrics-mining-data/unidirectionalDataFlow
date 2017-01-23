@@ -23,13 +23,6 @@
       android:layout_margin="16dp"
       app:buttonSize="wide" />
 
-    <Button
-      android:id="@+id/sign_in_anonymous"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_margin="16dp"
-      android:text="@string/login_anonymously"/>
-
   </LinearLayout>
 
 </merge>

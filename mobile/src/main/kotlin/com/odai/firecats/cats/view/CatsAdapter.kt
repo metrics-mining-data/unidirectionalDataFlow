@@ -17,7 +17,7 @@ class CatsAdapter(
 
     override fun onBindViewHolder(p0: CatsViewHolder, p1: Int) {
         val cat = cats.get(p1)
-        p0.bind(cat, favouriteCats.getStatusFor(cat), listener)
+        p0.bind(cat, favouriteCats.getStatusFor(cat.id), listener)
     }
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): CatsViewHolder? {

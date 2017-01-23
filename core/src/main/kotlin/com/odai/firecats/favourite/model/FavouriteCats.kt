@@ -1,10 +1,8 @@
 package com.odai.firecats.favourite.model
 
-import com.odai.firecats.cat.model.Cat
+data class FavouriteCats(val favourites: Map<Int, FavouriteState>) {
 
-data class FavouriteCats(val favourites: Map<Cat, FavouriteState>) {
-
-    fun put(p0: Pair<Cat, FavouriteState>): FavouriteCats {
+    fun put(p0: Pair<Int, FavouriteState>): FavouriteCats {
         return FavouriteCats(favourites.plus(p0))
     }
 
@@ -12,7 +10,7 @@ data class FavouriteCats(val favourites: Map<Cat, FavouriteState>) {
         return favourites.isEmpty()
     }
 
-    fun getStatusFor(cat: Cat): FavouriteState {
+    fun getStatusFor(cat: Int): FavouriteState {
         if (favourites.containsKey(cat)) {
             return favourites[cat]!!
         } else {

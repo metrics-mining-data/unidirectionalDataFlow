@@ -13,10 +13,13 @@ import com.odai.firecats.favourite.model.FavouriteState
 import com.odai.firecats.favourite.model.FavouriteStatus
 import com.odai.firecats.favourite.service.FavouriteCatsService
 import com.odai.firecats.loading.LoadingDisplayer
+import com.odai.firecats.login.model.User
+import com.odai.firecats.login.service.LoginService
 import com.odai.firecats.navigation.Navigator
 import io.reactivex.disposables.CompositeDisposable
 
 class CatsPresenter(
+        private val loginService: LoginService,
         private val catsService: CatsService,
         private val favouriteCatsService: FavouriteCatsService,
         private val navigate: Navigator,
@@ -25,6 +28,7 @@ class CatsPresenter(
 ) {
 
     private var subscriptions = CompositeDisposable()
+    private lateinit var user: User
 
     fun startPresenting() {
         catsDisplayer.attach(catClickedListener)
@@ -38,7 +42,10 @@ class CatsPresenter(
                         .subscribe(catsObserver)
         )
         subscriptions.add(
-                favouriteCatsService.getFavouriteCats()
+                loginService.getAuthentication()
+                        .filter { it.isSuccess }
+                        .doOnNext { user = it.user!! }
+                        .flatMap { favouriteCatsService.getFavouriteCats(it.user!!) }
                         .subscribe(favouriteCatsObserver)
         )
     }
@@ -106,9 +113,9 @@ class CatsPresenter(
                 return
             }
             if (state.status == FavouriteStatus.FAVOURITE) {
-                favouriteCatsService.removeFromFavourite(cat)
+                favouriteCatsService.removeFromFavourite(user, cat)
             } else if (state.status == FavouriteStatus.UN_FAVOURITE) {
-                favouriteCatsService.addToFavourite(cat)
+                favouriteCatsService.addToFavourite(user, cat)
             }
         }
 

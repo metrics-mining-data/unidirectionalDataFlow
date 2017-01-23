@@ -4,7 +4,11 @@ import com.odai.firecats.cat.model.Cat
 import com.odai.firecats.event.Event
 import com.odai.firecats.event.asData
 import com.odai.firecats.event.asEvent
+import com.odai.firecats.favourite.model.ActionState
 import com.odai.firecats.favourite.model.FavouriteCats
+import com.odai.firecats.favourite.model.FavouriteState
+import com.odai.firecats.favourite.model.FavouriteStatus
+import com.odai.firecats.login.model.User
 import com.odai.firecats.persistence.CatRepository
 import io.reactivex.Flowable
 
@@ -12,28 +16,20 @@ class PersistedFavouriteCatsService(
         private val repository: CatRepository
 ) : FavouriteCatsService {
 
-    override fun getFavouriteCatsEvents(): Flowable<Event<FavouriteCats>> {
-        return repository.observeFavouriteCats().compose(asEvent())
+    override fun getFavouriteCatsEvents(user: User): Flowable<Event<FavouriteCats>> {
+        return repository.observeFavouriteCats(user).compose(asEvent())
     }
 
-    override fun getFavouriteCats(): Flowable<FavouriteCats> = getFavouriteCatsEvents().compose(asData())
+    override fun getFavouriteCats(user: User): Flowable<FavouriteCats> = getFavouriteCatsEvents(user).compose(asData())
 
-    override fun addToFavourite(cat: Cat) {
-        /*api.addToFavourite(cat)
-                .map { Pair(cat, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)) }
-                .onErrorReturn { Pair(cat, FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.CONFIRMED)) }
-                .startWith(Pair(cat, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.PENDING)))
-                .doOnNext { repository.saveCatFavoriteStatus(it) }
-                .subscribe(favouriteCatStateObserver)*/
+    override fun addToFavourite(user: User, cat: Cat) {
+        //TODO Deal with pending server side
+        repository.saveCatFavoriteStatus(user, Pair(cat.id, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
     }
 
-    override fun removeFromFavourite(cat: Cat) {
-        /*api.removeFromFavourite(cat)
-                .map { Pair(cat, FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.CONFIRMED)) }
-                .onErrorReturn { Pair(cat, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)) }
-                .startWith(Pair(cat, FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.PENDING)))
-                .doOnNext { repository.saveCatFavoriteStatus(it) }
-                .subscribe(favouriteCatStateObserver)*/
+    override fun removeFromFavourite(user: User, cat: Cat) {
+        //TODO Deal with pending server side
+        repository.saveCatFavoriteStatus(user, Pair(cat.id, FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.CONFIRMED)))
     }
 
 }
