@@ -18,7 +18,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.*
-import java.net.URI
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -53,9 +52,9 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_EmissionOfNewCats_it_ShouldPresentTheCatsToTheView() {
         givenThePresenterIsPresenting()
 
-        catsSubject.onNext(Cats(listOf(Cat(42, "NewCat", URI.create("")))))
+        catsSubject.onNext(Cats(listOf(Cat(42, "NewCat", ""))))
 
-        verify(displayer).display(Cats(listOf(Cat(42, "NewCat", URI.create("")))))
+        verify(displayer).display(Cats(listOf(Cat(42, "NewCat", ""))))
     }
 
     @Test
@@ -63,7 +62,7 @@ class CatsPresenterTest {
         givenThePresenterIsPresenting()
 
         val favouriteCats = FavouriteCats(
-                mapOf(Pair(Cat(42, "NewCat", URI.create("")), FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
+                mapOf(Pair(Cat(42, "NewCat", ""), FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
         )
         favouriteCatsSubject.onNext(favouriteCats)
 
@@ -83,7 +82,7 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_EmissionOfALoadingEventWithData_it_ShouldPresentTheLoadingIndicator() {
         givenThePresenterIsPresenting()
 
-        catsEventSubject.onNext(Event(Status.LOADING, Cats(listOf(Cat(42, "NewCat", URI.create("")))), null))
+        catsEventSubject.onNext(Event(Status.LOADING, Cats(listOf(Cat(42, "NewCat", ""))), null))
 
         verify(loadingDisplayer).showLoadingIndicator()
     }
@@ -101,7 +100,7 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_EmissionOfAnIdleEventWithData_it_ShouldPresentData() {
         givenThePresenterIsPresenting()
 
-        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "NewCat", URI.create("")))), null))
+        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "NewCat", ""))), null))
 
         verify(loadingDisplayer).showData()
     }
@@ -119,7 +118,7 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_EmissionOfAnErrorEventWithData_it_ShouldPresentTheErrorIndicator() {
         givenThePresenterIsPresenting()
 
-        catsEventSubject.onNext(Event(Status.ERROR, Cats(listOf(Cat(42, "NewCat", URI.create("")))), null))
+        catsEventSubject.onNext(Event(Status.ERROR, Cats(listOf(Cat(42, "NewCat", ""))), null))
 
         verify(loadingDisplayer).showErrorIndicator()
     }
@@ -137,7 +136,7 @@ class CatsPresenterTest {
     fun given_ThePresenterStoppedPresenting_on_EmissionOfANewCat_it_ShouldNotPresentTheCatToTheView() {
         givenThePresenterStoppedPresenting()
 
-        catsSubject.onNext(Cats(listOf(Cat(42, "NewCat", URI.create("")))))
+        catsSubject.onNext(Cats(listOf(Cat(42, "NewCat", ""))))
 
         verifyZeroInteractions(displayer)
     }
@@ -147,7 +146,7 @@ class CatsPresenterTest {
         givenThePresenterStoppedPresenting()
 
         val favouriteCats = FavouriteCats(
-                mapOf(Pair(Cat(42, "NewCat", URI.create("")), FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
+                mapOf(Pair(Cat(42, "NewCat", ""), FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
         )
         favouriteCatsSubject.onNext(favouriteCats)
 
@@ -239,9 +238,9 @@ class CatsPresenterTest {
     fun given_ThePresenterIsPresenting_on_CatClicked_it_ShouldNavigateToTheClickedCat() {
         givenThePresenterIsPresenting()
 
-        presenter.catClickedListener.onCatClicked(Cat(42, "NewCat", URI.create("")))
+        presenter.catClickedListener.onCatClicked(Cat(42, "NewCat", ""))
 
-        verify(navigator).toCat(Cat(42, "NewCat", URI.create("")))
+        verify(navigator).toCat(Cat(42, "NewCat", ""))
     }
 
     @Test
@@ -249,11 +248,11 @@ class CatsPresenterTest {
         givenThePresenterIsPresenting()
 
         presenter.catClickedListener.onFavouriteClicked(
-                Cat(42, "NewCat", URI.create("")),
+                Cat(42, "NewCat", ""),
                 FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)
         )
 
-        verify(favouriteService).removeFromFavourite(Cat(42, "NewCat", URI.create("")))
+        verify(favouriteService).removeFromFavourite(Cat(42, "NewCat", ""))
     }
 
     @Test
@@ -261,11 +260,11 @@ class CatsPresenterTest {
         givenThePresenterIsPresenting()
 
         presenter.catClickedListener.onFavouriteClicked(
-                Cat(42, "NewCat", URI.create("")),
+                Cat(42, "NewCat", ""),
                 FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.CONFIRMED)
         )
 
-        verify(favouriteService).addToFavourite(Cat(42, "NewCat", URI.create("")))
+        verify(favouriteService).addToFavourite(Cat(42, "NewCat", ""))
     }
 
     @Test
@@ -273,7 +272,7 @@ class CatsPresenterTest {
         givenThePresenterIsPresenting()
 
         presenter.catClickedListener.onFavouriteClicked(
-                Cat(42, "NewCat", URI.create("")),
+                Cat(42, "NewCat", ""),
                 FavouriteState(FavouriteStatus.FAVOURITE, ActionState.PENDING)
         )
 
@@ -285,7 +284,7 @@ class CatsPresenterTest {
         givenThePresenterIsPresenting()
 
         presenter.catClickedListener.onFavouriteClicked(
-                Cat(42, "NewCat", URI.create("")),
+                Cat(42, "NewCat", ""),
                 FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.PENDING)
         )
 
