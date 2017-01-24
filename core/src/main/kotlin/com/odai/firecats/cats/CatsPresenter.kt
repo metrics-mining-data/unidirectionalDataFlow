@@ -51,6 +51,8 @@ class CatsPresenter(
     }
 
     fun stopPresenting() {
+        catsDisplayer.detach(catClickedListener)
+        loadingDisplayer.detach(retryListener)
         subscriptions.clear()
         subscriptions = CompositeDisposable()
     }

@@ -10,13 +10,7 @@ import kotlinx.android.synthetic.main.loading_view.view.*
 
 class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingDisplayer, FrameLayout(context, attrs) {
 
-    private var _content: View? = null
-
-    private var content: View
-        get() = _content!!
-        set(value) {
-            _content = value
-        };
+    private lateinit var content: View
 
     private var snackBar: Snackbar? = null
 
@@ -31,6 +25,9 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingDisplay
         }
     }
 
+    override fun detach(retryListener: LoadingDisplayer.LoadingActionListener) {
+        loadingButton.setOnClickListener(null)
+    }
 
     override fun showLoadingIndicator() {
         content.visibility = VISIBLE

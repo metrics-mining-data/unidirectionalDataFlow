@@ -10,7 +10,7 @@ import com.odai.firecats.favourite.model.FavouriteCats
 
 class CatsAdapter(
         private val layoutInflater: LayoutInflater,
-        private val listener: CatsDisplayer.CatsActionListener,
+        private val listener: AndroidCatsView.Listener,
         var cats: Cats,
         var favouriteCats: FavouriteCats
 ) : RecyclerView.Adapter<CatsViewHolder>() {

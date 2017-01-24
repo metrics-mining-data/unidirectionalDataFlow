@@ -9,6 +9,8 @@ interface CatsDisplayer {
 
     fun attach(listener: CatsActionListener)
 
+    fun detach(listener: CatsActionListener)
+
     fun display(cats: Cats)
 
     fun display(favouriteCats: FavouriteCats)

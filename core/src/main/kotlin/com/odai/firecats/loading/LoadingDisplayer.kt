@@ -4,6 +4,8 @@ interface LoadingDisplayer {
 
     fun attach(retryListener: LoadingActionListener)
 
+    fun detach(retryListener: LoadingActionListener)
+
     fun showLoadingIndicator()
 
     fun showLoadingScreen()

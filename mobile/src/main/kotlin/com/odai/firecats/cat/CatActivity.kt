@@ -4,22 +4,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.odai.firecats.CatApplication
 import com.odai.firecats.R
-import com.odai.firecats.cat.displayer.CatDisplayer
-import com.odai.firecats.cats.CatsPresenter
-import com.odai.firecats.cats.displayer.CatsDisplayer
-import com.odai.firecats.loading.LoadingDisplayer
 import com.odai.firecats.navigation.AndroidNavigator
 import kotlinx.android.synthetic.main.activity_cat.*
 
 class CatActivity : AppCompatActivity() {
 
-    private var _catPresenter: CatPresenter? = null
-
-    private var catPresenter: CatPresenter
-        get() = _catPresenter!!
-        set(value) {
-            _catPresenter = value
-        };
+    private lateinit var catPresenter: CatPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
