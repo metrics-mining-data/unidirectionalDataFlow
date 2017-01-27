@@ -24,7 +24,8 @@ class PersistedFavouriteCatsService(
 
     override fun addToFavourite(user: User, cat: Cat) {
         //TODO Deal with pending server side
-        repository.saveCatFavoriteStatus(user, Pair(cat.id, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
+        val favouriteState = FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)
+        repository.saveCatFavoriteStatus(user, Pair(cat.id, favouriteState))
     }
 
     override fun removeFromFavourite(user: User, cat: Cat) {

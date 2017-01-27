@@ -11,8 +11,6 @@ class PersistedCatsService(
         private val repository: CatRepository
 ) : CatsService {
 
-    var first = true
-
     override fun getCatsEvents(): Flowable<Event<Cats>> {
         return repository.observeCats()
                 .compose(asEvent())
