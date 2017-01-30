@@ -6,4 +6,15 @@ interface CatDisplayer {
 
     fun display(cat: Cat)
 
+    fun displayEmpty()
+
+    fun displayLoading()
+
+    fun displayLoading(cat: Cat)
+
+    fun displayError()
+
+    fun displayError(cat: Cat)
+
+
 }

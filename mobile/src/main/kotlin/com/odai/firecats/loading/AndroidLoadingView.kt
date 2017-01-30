@@ -8,7 +8,7 @@ import android.widget.FrameLayout
 import com.odai.firecats.R
 import kotlinx.android.synthetic.main.loading_view.view.*
 
-class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingDisplayer, FrameLayout(context, attrs) {
+class AndroidLoadingView(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
 
     private lateinit var content: View
 
@@ -19,49 +19,49 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingDisplay
         content = findViewById(R.id.content)
     }
 
-    override fun attach(retryListener: LoadingDisplayer.LoadingActionListener) {
+    fun attach(retryListener: RetryListener) {
         loadingButton.setOnClickListener {
             retryListener.onRetry()
         }
     }
 
-    override fun detach(retryListener: LoadingDisplayer.LoadingActionListener) {
+    fun detach() {
         loadingButton.setOnClickListener(null)
     }
 
-    override fun showLoadingIndicator() {
+    fun showLoadingIndicator() {
         content.visibility = VISIBLE
         loadingContainer.visibility = GONE
         displaySnackBar("Still loading data")
     }
 
-    override fun showErrorIndicator() {
+    fun showErrorIndicator() {
         content.visibility = VISIBLE
         loadingContainer.visibility = GONE
         displaySnackBar("An error has occurred")
     }
 
-    override fun showLoadingScreen() {
+    fun showLoadingScreen() {
         snackBar?.dismiss()
         content.visibility = GONE
         loadingContainer.visibility = VISIBLE
         loadingLabel.text = "LOADING"
     }
 
-    override fun showData() {
+    fun showData() {
         snackBar?.dismiss()
         content.visibility = VISIBLE
         loadingContainer.visibility = GONE
     }
 
-    override fun showEmptyScreen() {
+    fun showEmptyScreen() {
         snackBar?.dismiss()
         content.visibility = GONE
         loadingContainer.visibility = VISIBLE
         loadingLabel.text = "EMPTY"
     }
 
-    override fun showErrorScreen() {
+    fun showErrorScreen() {
         snackBar?.dismiss()
         content.visibility = GONE
         loadingContainer.visibility = VISIBLE
@@ -75,6 +75,10 @@ class AndroidLoadingView(context: Context, attrs: AttributeSet) : LoadingDisplay
             snackBar = Snackbar.make(this, message, Snackbar.LENGTH_INDEFINITE)
             snackBar?.show()
         }
+    }
+
+    interface RetryListener {
+        fun onRetry()
     }
 
 }

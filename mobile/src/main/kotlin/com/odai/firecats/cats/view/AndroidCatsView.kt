@@ -14,7 +14,7 @@ import com.odai.firecats.cats.model.Cats
 import com.odai.firecats.favourite.model.FavouriteCats
 import com.odai.firecats.favourite.model.FavouriteState
 
-class AndroidCatsView(context: Context, attrs: AttributeSet): CatsDisplayer, RecyclerView(context, attrs) {
+class AndroidCatsView(context: Context, attrs: AttributeSet): RecyclerView(context, attrs) {
 
     private var listener: CatsDisplayer.CatsActionListener? = null
 
@@ -30,22 +30,17 @@ class AndroidCatsView(context: Context, attrs: AttributeSet): CatsDisplayer, Rec
         adapter = CatsAdapter(LayoutInflater.from(context), delegateListener, Cats(emptyList()), FavouriteCats(mapOf()))
     }
 
-    override fun attach(listener: CatsDisplayer.CatsActionListener) {
+    fun attach(listener: CatsDisplayer.CatsActionListener) {
         this.listener = listener
     }
 
-    override fun detach(listener: CatsDisplayer.CatsActionListener) {
+    fun detach(listener: CatsDisplayer.CatsActionListener) {
         this.listener = null
     }
 
-    override fun display(cats: Cats) {
+    fun display(cats: Cats, favouriteCats: FavouriteCats) {
         val catAdapter = adapter as CatsAdapter
         catAdapter.cats = cats
-        catAdapter.notifyDataSetChanged()
-    }
-
-    override fun display(favouriteCats: FavouriteCats) {
-        val catAdapter = adapter as CatsAdapter
         catAdapter.favouriteCats = favouriteCats
         catAdapter.notifyDataSetChanged()
     }

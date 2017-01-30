@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.odai.firecats.CatApplication
 import com.odai.firecats.R
+import com.odai.firecats.cat.view.AndroidCatDisplayer
 import com.odai.firecats.navigation.AndroidNavigator
 import kotlinx.android.synthetic.main.activity_cat.*
 
@@ -16,7 +17,7 @@ class CatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_cat)
         val id = intent.getIntExtra(AndroidNavigator.ID_EXTRA, -1)
         if(id == -1) throw IllegalArgumentException("Intent should contain the cat id")
-        catPresenter = CatPresenter(id, getCatApplication().catService, content, loadingView)
+        catPresenter = CatPresenter(id, getCatApplication().catService, AndroidCatDisplayer(content, loadingView))
     }
 
     private fun getCatApplication(): CatApplication {

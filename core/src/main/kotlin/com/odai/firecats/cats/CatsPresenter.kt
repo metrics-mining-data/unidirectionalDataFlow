@@ -4,7 +4,6 @@ import com.odai.firecats.cat.model.Cat
 import com.odai.firecats.cats.displayer.CatsDisplayer
 import com.odai.firecats.cats.model.Cats
 import com.odai.firecats.cats.service.CatsService
-import com.odai.firecats.event.DataObserver
 import com.odai.firecats.event.Event
 import com.odai.firecats.event.EventObserver
 import com.odai.firecats.favourite.model.ActionState
@@ -12,19 +11,19 @@ import com.odai.firecats.favourite.model.FavouriteCats
 import com.odai.firecats.favourite.model.FavouriteState
 import com.odai.firecats.favourite.model.FavouriteStatus
 import com.odai.firecats.favourite.service.FavouriteCatsService
-import com.odai.firecats.loading.LoadingDisplayer
 import com.odai.firecats.login.model.User
 import com.odai.firecats.login.service.LoginService
 import com.odai.firecats.navigation.Navigator
+import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.BiFunction
 
 class CatsPresenter(
         private val loginService: LoginService,
         private val catsService: CatsService,
         private val favouriteCatsService: FavouriteCatsService,
         private val navigate: Navigator,
-        private val catsDisplayer: CatsDisplayer,
-        private val loadingDisplayer: LoadingDisplayer
+        private val catsDisplayer: CatsDisplayer
 ) {
 
     private var subscriptions = CompositeDisposable()
@@ -32,76 +31,51 @@ class CatsPresenter(
 
     fun startPresenting() {
         catsDisplayer.attach(catClickedListener)
-        loadingDisplayer.attach(retryListener)
+        val favouriteCatsFlowable = loginService.getAuthentication()
+                .filter { it.isSuccess }
+                .doOnNext { user = it.user!! }
+                .flatMap { favouriteCatsService.getFavouriteCats(it.user!!) }
+                .startWith(FavouriteCats(emptyMap()))
+
+        val eventFlow = Flowable.combineLatest(catsService.getCatsEvents(), favouriteCatsFlowable, BiFunction { event:Event<Cats>, fav: FavouriteCats ->
+            Event(event.status, Pair(event.data, fav), event.error)
+        })
+
         subscriptions.add(
-                catsService.getCatsEvents()
-                        .subscribe(catsEventsObserver)
-        )
-        subscriptions.add(
-                catsService.getCats()
-                        .subscribe(catsObserver)
-        )
-        subscriptions.add(
-                loginService.getAuthentication()
-                        .filter { it.isSuccess }
-                        .doOnNext { user = it.user!! }
-                        .flatMap { favouriteCatsService.getFavouriteCats(it.user!!) }
-                        .subscribe(favouriteCatsObserver)
+                eventFlow.subscribe(catsEventsObserver)
         )
     }
 
     fun stopPresenting() {
         catsDisplayer.detach(catClickedListener)
-        loadingDisplayer.detach(retryListener)
         subscriptions.clear()
         subscriptions = CompositeDisposable()
     }
 
-    private val catsEventsObserver = object : EventObserver<Cats>() {
-        override fun onLoading(event: Event<Cats>) {
-            if (event.data != null) {
-                loadingDisplayer.showLoadingIndicator()
+    private val catsEventsObserver = object : EventObserver<Pair<Cats?, FavouriteCats>>() {
+        override fun onLoading(event: Event<Pair<Cats?, FavouriteCats>>) {
+            if (event.data?.first != null) {
+                catsDisplayer.displayLoading(event.data?.first!!, event.data?.second!!)
             } else {
-                loadingDisplayer.showLoadingScreen()
+                catsDisplayer.displayLoading()
             }
         }
 
-        override fun onIdle(event: Event<Cats>) {
-            if (event.data != null) {
-                loadingDisplayer.showData()
+        override fun onIdle(event: Event<Pair<Cats?, FavouriteCats>>) {
+            if (event.data?.first != null) {
+                catsDisplayer.display(event.data?.first!!, event.data?.second!!)
             } else {
-                loadingDisplayer.showEmptyScreen()
+                catsDisplayer.displayEmpty()
             }
         }
 
-        override fun onError(event: Event<Cats>) {
-            if (event.data != null) {
-                loadingDisplayer.showErrorIndicator()
+        override fun onError(event: Event<Pair<Cats?, FavouriteCats>>) {
+            if (event.data?.first != null) {
+                catsDisplayer.displayError(event.data?.first!!, event.data?.second!!)
             } else {
-                loadingDisplayer.showErrorScreen()
+                catsDisplayer.displayError()
             }
         }
-
-    }
-
-    private val catsObserver = object : DataObserver<Cats> {
-        override fun accept(p0: Cats) {
-            catsDisplayer.display(p0)
-        }
-    }
-
-    private val favouriteCatsObserver = object : DataObserver<FavouriteCats> {
-        override fun accept(p0: FavouriteCats) {
-            catsDisplayer.display(p0)
-        }
-    }
-
-    val retryListener = object : LoadingDisplayer.LoadingActionListener {
-
-        override fun onRetry() {
-            //TBD if still needed
-        }
-
     }
 
     val catClickedListener = object : CatsDisplayer.CatsActionListener {
@@ -111,7 +85,7 @@ class CatsPresenter(
         }
 
         override fun onFavouriteClicked(cat: Cat, state: FavouriteState) {
-            if(state.state != ActionState.CONFIRMED) {
+            if (state.state != ActionState.CONFIRMED) {
                 return
             }
             if (state.status == FavouriteStatus.FAVOURITE) {
@@ -119,6 +93,10 @@ class CatsPresenter(
             } else if (state.status == FavouriteStatus.UN_FAVOURITE) {
                 favouriteCatsService.addToFavourite(user, cat)
             }
+        }
+
+        override fun onRetry() {
+            //TBD if still needed
         }
 
     }

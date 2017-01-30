@@ -11,13 +11,22 @@ interface CatsDisplayer {
 
     fun detach(listener: CatsActionListener)
 
-    fun display(cats: Cats)
+    fun display(cats: Cats, favouriteCats: FavouriteCats)
 
-    fun display(favouriteCats: FavouriteCats)
+    fun displayEmpty()
+
+    fun displayLoading()
+
+    fun displayLoading(cats: Cats, favouriteCats: FavouriteCats)
+
+    fun displayError()
+
+    fun displayError(cats: Cats, favouriteCats: FavouriteCats)
 
     interface CatsActionListener {
         fun onFavouriteClicked(cat: Cat, state: FavouriteState)
         fun onCatClicked(cat: Cat)
+        fun onRetry()
     }
 
 }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.odai.firecats.CatApplication
 import com.odai.firecats.R
+import com.odai.firecats.cats.view.AndroidCatsDisplayer
 import com.odai.firecats.navigation.AndroidNavigator
 import kotlinx.android.synthetic.main.activity_cats.*
 
@@ -19,8 +20,7 @@ class CatsActivity : AppCompatActivity() {
                 getCatApplication().catsService,
                 getCatApplication().favouriteCatsService,
                 AndroidNavigator(this),
-                content,
-                loadingView
+                AndroidCatsDisplayer(content, loadingView)
         )
     }
 
