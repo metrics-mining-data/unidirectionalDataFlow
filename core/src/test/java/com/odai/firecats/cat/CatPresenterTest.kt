@@ -5,7 +5,6 @@ import com.odai.firecats.cat.model.Cat
 import com.odai.firecats.cat.service.CatService
 import com.odai.firecats.event.Event
 import com.odai.firecats.event.Status
-import com.odai.firecats.loading.LoadingDisplayer
 import io.reactivex.processors.BehaviorProcessor
 import org.junit.After
 import org.junit.Before
@@ -17,33 +16,22 @@ import kotlin.test.assertTrue
 
 class CatPresenterTest {
 
-    var catSubject: BehaviorProcessor<Cat> = BehaviorProcessor.create()
     var catEventSubject: BehaviorProcessor<Event<Cat>> = BehaviorProcessor.create()
     var service: CatService = mock(CatService::class.java)
 
     var displayer: CatDisplayer = mock(CatDisplayer::class.java)
-    var loadingDisplayer: LoadingDisplayer = mock(LoadingDisplayer::class.java)
 
-    var presenter = CatPresenter(42, service, displayer, loadingDisplayer)
+    var presenter = CatPresenter(42, service, displayer)
 
     @Before
     fun setUp() {
         setUpService()
-        presenter = CatPresenter(42, service, displayer, loadingDisplayer)
+        presenter = CatPresenter(42, service, displayer)
     }
 
     @After
     fun tearDown() {
-        reset(displayer, loadingDisplayer, service)
-    }
-
-    @Test
-    fun given_ThePresenterIsPresenting_on_EmissionOfANewCat_it_ShouldPresentTheCatToTheView() {
-        givenThePresenterIsPresenting()
-
-        catSubject.onNext(Cat(42, "NewCat", ""))
-
-        verify(displayer).display(Cat(42, "NewCat", ""))
+        reset(displayer, service)
     }
 
     @Test
@@ -52,7 +40,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.LOADING, null, null))
 
-        verify(loadingDisplayer).showLoadingScreen()
+        verify(displayer).displayLoading()
     }
 
     @Test
@@ -61,7 +49,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.LOADING, Cat(42, "NewCat", ""), null))
 
-        verify(loadingDisplayer).showLoadingIndicator()
+        verify(displayer).displayLoading(Cat(42, "NewCat", ""))
     }
 
     @Test
@@ -70,7 +58,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.IDLE, null, null))
 
-        verify(loadingDisplayer).showEmptyScreen()
+        verify(displayer).displayEmpty()
     }
 
     @Test
@@ -79,7 +67,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.IDLE, Cat(42, "NewCat", ""), null))
 
-        verify(loadingDisplayer).showData()
+        verify(displayer).display(Cat(42, "NewCat", ""))
     }
 
     @Test
@@ -88,7 +76,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.ERROR, null, null))
 
-        verify(loadingDisplayer).showErrorScreen()
+        verify(displayer).displayError()
     }
 
     @Test
@@ -97,7 +85,7 @@ class CatPresenterTest {
 
         catEventSubject.onNext(Event(Status.ERROR, Cat(42, "NewCat", ""), null))
 
-        verify(loadingDisplayer).showErrorIndicator()
+        verify(displayer).displayError(Cat(42, "NewCat", ""))
     }
 
     /*@Test
@@ -110,39 +98,12 @@ class CatPresenterTest {
     } */
 
     @Test
-    fun given_ThePresenterStoppedPresenting_on_EmissionOfANewCat_it_ShouldNotPresentTheCatToTheView() {
-        givenThePresenterStoppedPresenting()
-
-        catSubject.onNext(Cat(42, "NewCat", ""))
-
-        verifyZeroInteractions(displayer)
-    }
-
-    @Test
     fun given_ThePresenterStoppedPresenting_on_EmissionOfAnEvent_it_ShouldNotPresentToTheLoadingView() {
         givenThePresenterStoppedPresenting()
 
         catEventSubject.onNext(Event(Status.LOADING, null, null))
 
-        verifyZeroInteractions(loadingDisplayer)
-    }
-
-    @Test
-    fun given_ThePresenterIsNotPresenting_on_StartPresenting_it_ShouldAttachListenerToTheLoadingView() {
-        givenThePresenterIsNotPresenting()
-
-        presenter.startPresenting()
-
-        verify(loadingDisplayer).attach(presenter.retryListener)
-    }
-
-    @Test
-    fun given_ThePresenterIsNotPresenting_on_StartPresenting_it_ShouldSubscribeToTheCatStream() {
-        givenThePresenterIsNotPresenting()
-
-        presenter.startPresenting()
-
-        assertTrue(catSubject.hasSubscribers())
+        verifyZeroInteractions(displayer)
     }
 
     @Test
@@ -152,15 +113,6 @@ class CatPresenterTest {
         presenter.startPresenting()
 
         assertTrue(catEventSubject.hasSubscribers())
-    }
-
-    @Test
-    fun given_ThePresenterIsPresenting_on_StopPresenting_it_ShouldUnsubscribeFromTheCatStream() {
-        givenThePresenterIsPresenting()
-
-        presenter.stopPresenting()
-
-        assertFalse(catSubject.hasSubscribers())
     }
 
     @Test
@@ -181,14 +133,12 @@ class CatPresenterTest {
 
     private fun givenThePresenterStoppedPresenting() {
         presenter.startPresenting()
-        reset(loadingDisplayer)
+        reset(displayer)
         presenter.stopPresenting()
     }
 
     private fun setUpService() {
-        catSubject = BehaviorProcessor.create()
         catEventSubject = BehaviorProcessor.create()
-        `when`(service.getCat(Mockito.anyInt())).thenReturn(catSubject)
         `when`(service.getCatEvents(Mockito.anyInt())).thenReturn(catEventSubject)
     }
 }

@@ -33,15 +33,6 @@ class PersistedCatServiceTest {
     } */
 
     @Test
-    fun given_aServiceWithCats_on_getCatWithId_it_ShouldCallReturnCatForId() {
-        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo", ""), Cat(24, "Bar", ""))), null))
-
-        val cat = service.getCat(24).firstOrError().blockingGet()
-
-        assertEquals(Cat(24, "Bar", ""), cat)
-    }
-
-    @Test
     fun given_aServiceWithCats_on_getCatEvents_it_ShouldCallReturnCatForId() {
         catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "Foo", ""), Cat(24, "Bar", ""))), null))
 

@@ -8,6 +8,4 @@ interface CatService {
 
     fun getCatEvents(id: Int): Flowable<Event<Cat>>
 
-    fun getCat(id: Int): Flowable<Cat>
-
 }

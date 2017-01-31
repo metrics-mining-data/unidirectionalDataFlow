@@ -3,15 +3,14 @@ package com.odai.firecats.cats
 import com.odai.firecats.cat.model.Cat
 import com.odai.firecats.cats.displayer.CatsDisplayer
 import com.odai.firecats.cats.model.Cats
-import com.odai.firecats.cats.service.CatsService
+import com.odai.firecats.cats.model.CatsState
+import com.odai.firecats.cats.service.CatsServiceClient
 import com.odai.firecats.event.Event
 import com.odai.firecats.event.Status
 import com.odai.firecats.favourite.model.ActionState
 import com.odai.firecats.favourite.model.FavouriteCats
 import com.odai.firecats.favourite.model.FavouriteState
 import com.odai.firecats.favourite.model.FavouriteStatus
-import com.odai.firecats.favourite.service.FavouriteCatsService
-import com.odai.firecats.loading.LoadingDisplayer
 import com.odai.firecats.navigation.Navigator
 import io.reactivex.processors.BehaviorProcessor
 import org.junit.After
@@ -23,50 +22,24 @@ import kotlin.test.assertTrue
 
 class CatsPresenterTest {
 
-    var catsSubject: BehaviorProcessor<Cats> = BehaviorProcessor.create()
-    var catsEventSubject: BehaviorProcessor<Event<Cats>> = BehaviorProcessor.create()
-    var service: CatsService = mock(CatsService::class.java)
-
-    var favouriteCatsSubject: BehaviorProcessor<FavouriteCats> = BehaviorProcessor.create()
-    var favouriteService: FavouriteCatsService = mock(FavouriteCatsService::class.java)
+    var catsEventSubject: BehaviorProcessor<Event<CatsState>> = BehaviorProcessor.create()
+    var service: CatsServiceClient = mock(CatsServiceClient::class.java)
 
     var displayer: CatsDisplayer = mock(CatsDisplayer::class.java)
-    var loadingDisplayer: LoadingDisplayer = mock(LoadingDisplayer::class.java)
 
     var navigator: Navigator = mock(Navigator::class.java)
 
-    var presenter = CatsPresenter(service, favouriteService, navigator, displayer, loadingDisplayer)
+    var presenter = CatsPresenter(service, navigator, displayer)
 
     @Before
     fun setUp() {
         setUpService()
-        presenter = CatsPresenter(service, favouriteService, navigator, displayer, loadingDisplayer)
+        presenter = CatsPresenter(service, navigator, displayer)
     }
 
     @After
     fun tearDown() {
-        reset(displayer, loadingDisplayer, service, favouriteService)
-    }
-
-    @Test
-    fun given_ThePresenterIsPresenting_on_EmissionOfNewCats_it_ShouldPresentTheCatsToTheView() {
-        givenThePresenterIsPresenting()
-
-        catsSubject.onNext(Cats(listOf(Cat(42, "NewCat", ""))))
-
-        verify(displayer).display(Cats(listOf(Cat(42, "NewCat", ""))))
-    }
-
-    @Test
-    fun given_ThePresenterIsPresenting_on_EmissionOfNewFavouritesCats_it_ShouldPresentTheCatsToTheView() {
-        givenThePresenterIsPresenting()
-
-        val favouriteCats = FavouriteCats(
-                mapOf(Pair(Cat(42, "NewCat", ""), FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
-        )
-        favouriteCatsSubject.onNext(favouriteCats)
-
-        verify(displayer).display(favouriteCats)
+        reset(displayer, service)
     }
 
     @Test
@@ -75,16 +48,20 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.LOADING, null, null))
 
-        verify(loadingDisplayer).showLoadingScreen()
+        verify(displayer).displayLoading()
     }
 
     @Test
     fun given_ThePresenterIsPresenting_on_EmissionOfALoadingEventWithData_it_ShouldPresentTheLoadingIndicator() {
         givenThePresenterIsPresenting()
 
-        catsEventSubject.onNext(Event(Status.LOADING, Cats(listOf(Cat(42, "NewCat", ""))), null))
+        val cats = Cats(listOf(Cat(42, "NewCat", "")))
+        val favouriteCats = FavouriteCats(
+                mapOf(Pair(42, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
+        )
+        catsEventSubject.onNext(Event(Status.LOADING, CatsState(null, cats, favouriteCats), null))
 
-        verify(loadingDisplayer).showLoadingIndicator()
+        verify(displayer).displayLoading(cats, favouriteCats)
     }
 
     @Test
@@ -93,16 +70,20 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.IDLE, null, null))
 
-        verify(loadingDisplayer).showEmptyScreen()
+        verify(displayer).displayEmpty()
     }
 
     @Test
     fun given_ThePresenterIsPresenting_on_EmissionOfAnIdleEventWithData_it_ShouldPresentData() {
         givenThePresenterIsPresenting()
 
-        catsEventSubject.onNext(Event(Status.IDLE, Cats(listOf(Cat(42, "NewCat", ""))), null))
+        val cats = Cats(listOf(Cat(42, "NewCat", "")))
+        val favouriteCats = FavouriteCats(
+                mapOf(Pair(42, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
+        )
+        catsEventSubject.onNext(Event(Status.IDLE, CatsState(null, cats, favouriteCats), null))
 
-        verify(loadingDisplayer).showData()
+        verify(displayer).display(cats, favouriteCats)
     }
 
     @Test
@@ -111,16 +92,20 @@ class CatsPresenterTest {
 
         catsEventSubject.onNext(Event(Status.ERROR, null, null))
 
-        verify(loadingDisplayer).showErrorScreen()
+        verify(displayer).displayError()
     }
 
     @Test
     fun given_ThePresenterIsPresenting_on_EmissionOfAnErrorEventWithData_it_ShouldPresentTheErrorIndicator() {
         givenThePresenterIsPresenting()
 
-        catsEventSubject.onNext(Event(Status.ERROR, Cats(listOf(Cat(42, "NewCat", ""))), null))
+        val cats = Cats(listOf(Cat(42, "NewCat", "")))
+        val favouriteCats = FavouriteCats(
+                mapOf(Pair(42, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
+        )
+        catsEventSubject.onNext(Event(Status.ERROR, CatsState(null, cats, favouriteCats), null))
 
-        verify(loadingDisplayer).showErrorIndicator()
+        verify(displayer).displayError(cats, favouriteCats)
     }
 
     /*@Test
@@ -136,39 +121,13 @@ class CatsPresenterTest {
     fun given_ThePresenterStoppedPresenting_on_EmissionOfANewCat_it_ShouldNotPresentTheCatToTheView() {
         givenThePresenterStoppedPresenting()
 
-        catsSubject.onNext(Cats(listOf(Cat(42, "NewCat", ""))))
-
-        verifyZeroInteractions(displayer)
-    }
-
-    @Test
-    fun given_ThePresenterStoppedPresenting_on_EmissionOfNewFavouritesCats_it_ShouldNotPresentTheCatsToTheView() {
-        givenThePresenterStoppedPresenting()
-
+        val cats = Cats(listOf(Cat(42, "NewCat", "")))
         val favouriteCats = FavouriteCats(
-                mapOf(Pair(Cat(42, "NewCat", ""), FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
+                mapOf(Pair(42, FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)))
         )
-        favouriteCatsSubject.onNext(favouriteCats)
+        catsEventSubject.onNext(Event(Status.IDLE, CatsState(null, cats, favouriteCats), null))
 
         verifyZeroInteractions(displayer)
-    }
-
-    @Test
-    fun given_ThePresenterStoppedPresenting_on_EmissionOfAnEvent_it_ShouldNotPresentToTheLoadingView() {
-        givenThePresenterStoppedPresenting()
-
-        catsEventSubject.onNext(Event(Status.LOADING, null, null))
-
-        verifyZeroInteractions(loadingDisplayer)
-    }
-
-    @Test
-    fun given_ThePresenterIsNotPresenting_on_StartPresenting_it_ShouldAttachListenerToTheLoadingView() {
-        givenThePresenterIsNotPresenting()
-
-        presenter.startPresenting()
-
-        verify(loadingDisplayer).attach(presenter.retryListener)
     }
 
     @Test
@@ -181,12 +140,12 @@ class CatsPresenterTest {
     }
 
     @Test
-    fun given_ThePresenterIsNotPresenting_on_StartPresenting_it_ShouldSubscribeToTheCatStream() {
-        givenThePresenterIsNotPresenting()
+    fun given_ThePresenterIsPresenting_on_StopPresenting_it_ShouldDetachListenerToTheView() {
+        givenThePresenterIsPresenting()
 
-        presenter.startPresenting()
+        presenter.stopPresenting()
 
-        assertTrue(catsSubject.hasSubscribers())
+        verify(displayer).detach(presenter.catClickedListener)
     }
 
     @Test
@@ -199,39 +158,12 @@ class CatsPresenterTest {
     }
 
     @Test
-    fun given_ThePresenterIsNotPresenting_on_StartPresenting_it_ShouldSubscribeToTheFavouriteCatStream() {
-        givenThePresenterIsNotPresenting()
-
-        presenter.startPresenting()
-
-        assertTrue(favouriteCatsSubject.hasSubscribers())
-    }
-
-    @Test
-    fun given_ThePresenterIsPresenting_on_StopPresenting_it_ShouldUnsubscribeFromTheCatStream() {
-        givenThePresenterIsPresenting()
-
-        presenter.stopPresenting()
-
-        assertFalse(catsSubject.hasSubscribers())
-    }
-
-    @Test
     fun given_ThePresenterIsPresenting_on_StopPresenting_it_ShouldUnsubscribeFromTheEventStream() {
         givenThePresenterIsPresenting()
 
         presenter.stopPresenting()
 
         assertFalse(catsEventSubject.hasSubscribers())
-    }
-
-    @Test
-    fun given_ThePresenterIsPresenting_on_StopPresenting_it_ShouldUnsubscribeFromTheFavouriteCatStream() {
-        givenThePresenterIsPresenting()
-
-        presenter.stopPresenting()
-
-        assertFalse(favouriteCatsSubject.hasSubscribers())
     }
 
     @Test
@@ -244,7 +176,7 @@ class CatsPresenterTest {
     }
 
     @Test
-    fun given_ThePresenterIsPresenting_on_FavouriteClickedForFavouriteCat_it_ShouldRemoveCatFromFavourites() {
+    fun given_ThePresenterIsPresenting_on_FavouriteClickedForCat_it_ShouldToggleFavouriteState() {
         givenThePresenterIsPresenting()
 
         presenter.catClickedListener.onFavouriteClicked(
@@ -252,48 +184,13 @@ class CatsPresenterTest {
                 FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED)
         )
 
-        verify(favouriteService).removeFromFavourite(Cat(42, "NewCat", ""))
-    }
-
-    @Test
-    fun given_ThePresenterIsPresenting_on_FavouriteClickedForUnFavouriteCat_it_ShouldAddCatToFavourites() {
-        givenThePresenterIsPresenting()
-
-        presenter.catClickedListener.onFavouriteClicked(
-                Cat(42, "NewCat", ""),
-                FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.CONFIRMED)
-        )
-
-        verify(favouriteService).addToFavourite(Cat(42, "NewCat", ""))
-    }
-
-    @Test
-    fun given_ThePresenterIsPresenting_on_FavouriteClickedForPendingFavouriteCat_it_ShouldDoNothing() {
-        givenThePresenterIsPresenting()
-
-        presenter.catClickedListener.onFavouriteClicked(
-                Cat(42, "NewCat", ""),
-                FavouriteState(FavouriteStatus.FAVOURITE, ActionState.PENDING)
-        )
-
-        verifyZeroInteractions(favouriteService)
-    }
-
-    @Test
-    fun given_ThePresenterIsPresenting_on_FavouriteClickedForPendingUnFavouriteCat_it_ShouldDoNothing() {
-        givenThePresenterIsPresenting()
-
-        presenter.catClickedListener.onFavouriteClicked(
-                Cat(42, "NewCat", ""),
-                FavouriteState(FavouriteStatus.UN_FAVOURITE, ActionState.PENDING)
-        )
-
-        verifyZeroInteractions(favouriteService)
+        verify(service).toggleFavouriteStatus(Cat(42, "NewCat", ""),
+                FavouriteState(FavouriteStatus.FAVOURITE, ActionState.CONFIRMED))
     }
 
     private fun givenThePresenterIsPresenting() {
         presenter.startPresenting()
-        reset(service, favouriteService)
+        reset(service)
     }
 
     private fun givenThePresenterIsNotPresenting() {
@@ -301,17 +198,13 @@ class CatsPresenterTest {
 
     private fun givenThePresenterStoppedPresenting() {
         presenter.startPresenting()
-        reset(loadingDisplayer, displayer)
         presenter.stopPresenting()
+        reset(displayer)
     }
 
     private fun setUpService() {
-        catsSubject = BehaviorProcessor.create()
         catsEventSubject = BehaviorProcessor.create()
-        favouriteCatsSubject = BehaviorProcessor.create()
-        `when`(service.getCats()).thenReturn(catsSubject)
-        `when`(service.getCatsEvents()).thenReturn(catsEventSubject)
-        `when`(favouriteService.getFavouriteCats()).thenReturn(favouriteCatsSubject)
+        `when`(service.getCatsStateEvents()).thenReturn(catsEventSubject)
     }
 }
 

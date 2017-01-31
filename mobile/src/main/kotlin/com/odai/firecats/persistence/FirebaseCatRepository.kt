@@ -33,7 +33,11 @@ class FirebaseCatRepository(val db: DatabaseReference) : CatRepository {
     }
 
     override fun saveCatFavoriteStatus(user: User, it: Pair<Int, FavouriteState>) {
-        db.child("users").child(user.id).child("favourites").child(it.first.toString()).setValue(it.second)
+        db.child("users")
+                .child(user.id)
+                .child("favourites")
+                .child(it.first.toString())
+                .setValue(it.second)
     }
 
 }
