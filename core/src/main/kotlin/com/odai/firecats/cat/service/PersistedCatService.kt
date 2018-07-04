@@ -12,5 +12,8 @@ class PersistedCatService(private val catsService: CatsService) : CatService {
             Event<Cat>(it.status, it?.data?.first { it.id == id }, it.error)
         }
     }
+    override fun getCat(id: Int): Flowable<Cat> {
+        return getCatEvents(id).compose(asData())
+    }
 
 }
