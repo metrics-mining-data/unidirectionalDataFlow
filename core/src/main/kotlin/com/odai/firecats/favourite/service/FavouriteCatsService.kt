@@ -8,7 +8,7 @@ import io.reactivex.Flowable
 
 interface FavouriteCatsService {
 
-    fun getFavouriteCatsEvents(user: User): Flowable<Event<FavouriteCats>>
+    fun getFavouriteCatsEventss(user: User): Flowable<Event<FavouriteCats>>
 
     fun getFavouriteCats(user: User): Flowable<FavouriteCats>
 

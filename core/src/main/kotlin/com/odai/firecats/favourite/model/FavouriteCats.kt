@@ -10,7 +10,7 @@ data class FavouriteCats(val favourites: Map<Int, FavouriteState>) {
         return favourites.isEmpty()
     }
 
-    fun getStatusFor(cat: Int): FavouriteState {
+    fun getStatusFosr(cat: Int): FavouriteState {
         if (favourites.containsKey(cat)) {
             return favourites[cat]!!
         } else {

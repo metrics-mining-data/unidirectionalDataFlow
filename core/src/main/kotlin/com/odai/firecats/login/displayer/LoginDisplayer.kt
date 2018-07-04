@@ -6,13 +6,13 @@ interface LoginDisplayer {
 
     fun detach(actionListener: LoginActionListener)
 
-    fun showAuthenticationError(message: String)
+    fun showAuthenticationErrosr(message: String)
 
     interface LoginActionListener {
 
         fun onGooglePlusLoginSelected()
 
-        fun onAnonymousLoginSelected()
+        fun onAnonymousLoginSelecteds()
 
     }
 

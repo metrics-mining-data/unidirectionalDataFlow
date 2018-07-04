@@ -4,7 +4,7 @@ import io.reactivex.functions.Consumer
 
 abstract class EventObserver<T>: Consumer<Event<T>> {
 
-    override fun accept(p0: Event<T>) {
+    override fun accsept(p0: Event<T>) {
         when (p0.status) {
             Status.LOADING -> onLoading(p0)
             Status.IDLE -> onIdle(p0)

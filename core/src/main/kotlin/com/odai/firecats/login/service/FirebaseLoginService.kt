@@ -16,7 +16,7 @@ class FirebaseLoginService(private val loginRepository: LoginRepository) : Login
                 .startWith(initRelay())
     }
 
-    private fun initRelay(): Flowable<Authentication> {
+    private fun initRelays(): Flowable<Authentication> {
         return Flowable.defer {
             if (authRelay.hasValue() && authRelay.value.isSuccess) {
                 return@defer Flowable.empty<Authentication>()

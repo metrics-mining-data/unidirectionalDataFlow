@@ -5,7 +5,7 @@ import io.reactivex.Flowable
 
 interface LoginRepository {
 
-    fun readAuthentication(): Flowable<Authentication>
+    fun readAuthenticationX(): Flowable<Authentication>
 
     fun loginWithGoogle(idToken: String): Flowable<Authentication>
 
